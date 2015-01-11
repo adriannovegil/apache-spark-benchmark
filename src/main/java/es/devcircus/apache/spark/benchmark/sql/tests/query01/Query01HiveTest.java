@@ -17,19 +17,13 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.tests.query01;
 
-import es.devcircus.apache.spark.benchmark.sql.model.Ranking;
-import java.util.ArrayList;
 import java.util.List;
 import org.apache.spark.SparkConf;
-import org.apache.spark.api.java.JavaRDD;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.sql.api.java.DataType;
-import org.apache.spark.sql.api.java.JavaSQLContext;
 import org.apache.spark.sql.api.java.JavaSchemaRDD;
 import org.apache.spark.sql.api.java.Row;
-import org.apache.spark.sql.api.java.StructField;
-import org.apache.spark.sql.api.java.StructType;
+import org.apache.spark.sql.hive.api.java.JavaHiveContext;
 
 /**
  * 1. Scan Query
@@ -60,7 +54,7 @@ import org.apache.spark.sql.api.java.StructType;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query01ProgrammaticallyTest {
+public class Query01HiveTest {
 
     /**
      * Método principal.
@@ -76,65 +70,22 @@ public class Query01ProgrammaticallyTest {
          */
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
         // para su ejecución.
-        SparkConf sparkConf = new SparkConf().setAppName("asb:java:sql:query01-programmatically-test");
+        SparkConf sparkConf = new SparkConf().setAppName("asb:java:sql:query01-hive-test");
         // Creamos un contexto de spark.
         JavaSparkContext ctx = new JavaSparkContext(sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
-        JavaSQLContext sqlCtx = new JavaSQLContext(ctx);
-
-        // Cargamos los datos desde el fichero de raking.
-        JavaRDD<String> rankingData = ctx.textFile("/media/adrian/data/apache_spark_data/text-deflate/tiny/rankings");
+        JavaHiveContext sqlCtx = new JavaHiveContext(ctx);
 
         // ---------------------------------------------------------------------
-        //  Contamos el numero de resultados cargados.
+        //  Momento SQL.
         // ---------------------------------------------------------------------
-        // Contamos los resultados recuperados.
-        Long countResult = rankingData.count();
-        // Mostramos el resultado del conteo por pantalla.
-        System.out.println("Resultado del conteo del RDD...: " + countResult);
-
-        // ---------------------------------------------------------------------
-        //  Definimos el modelo de resultado de la consulta mediante programacion
-        // ---------------------------------------------------------------------
-        // Definimos la lista de atributos.
-        List<StructField> fields = new ArrayList<>();
-        // Para cada uno de los atributos especificamos el nombre y el tipo de 
-        // dato.
-        fields.add(DataType.createStructField(Ranking.PAGE_URL_FIELD, DataType.StringType, true));
-        fields.add(DataType.createStructField(Ranking.PAGE_RANK_FIELD, DataType.IntegerType, true));
-        fields.add(DataType.createStructField(Ranking.AVG_DURATION_FIELD, DataType.IntegerType, true));
-        // Cremos el esquema de datos a partir de los campos creados.
-        StructType schema = DataType.createStructType(fields);
-
-        // Convertimos las lineas que creamos como String a partir del fichero de
-        // texto a instancias de filas. En este punto aun no podemos mapear al
-        // esquema concreto.
-        JavaRDD<Row> rowRDD = rankingData.map(
-                new Function<String, Row>() {
-                    @Override
-                    public Row call(String record) throws Exception {
-                        String[] fields = record.split(",");
-                        return Row.create(
-                                fields[0],
-                                new Integer(fields[1]),
-                                new Integer(fields[2]));
-                    }
-                });
-
-        // ---------------------------------------------------------------------
-        //  Creamos el esquema y declaramos la tabla sobre la que vamos a lanzar
-        //  la query
-        // ---------------------------------------------------------------------
-        // Aplicamos el esquema que hemos creado a las lineas que hemos creado en
-        // el paso anterior..
-        JavaSchemaRDD rankingSchemaRDD = sqlCtx.applySchema(rowRDD, schema);
-
-        // Registramos la tabla rankings
-        rankingSchemaRDD.registerTempTable("rankings");
-
-        // ---------------------------------------------------------------------
-        //  Lanzamos la query
-        // ---------------------------------------------------------------------
+        // Si existiese previamente la tabla, nos la cargamos.
+        sqlCtx.sql("DROP TABLE IF EXISTS rankings");
+        // Creamos la tabla y cargamo slos datos.
+        sqlCtx.sql(" CREATE TABLE IF NOT EXISTS rankings (pageURL STRING, pageRank INT,"
+                + " avgDuration INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
+                + " STORED AS TEXTFILE LOCATION '/media/adrian/data/apache_spark_data/text-deflate/tiny/rankings'");
+        // Lanzamos las query sobre los datos.
         JavaSchemaRDD results = sqlCtx.sql("SELECT pageURL, pageRank FROM rankings WHERE pageRank > 10");
 
         // ---------------------------------------------------------------------

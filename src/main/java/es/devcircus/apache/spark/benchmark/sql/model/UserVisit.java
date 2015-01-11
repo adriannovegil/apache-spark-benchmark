@@ -25,14 +25,31 @@ import java.sql.Timestamp;
  */
 public class UserVisit {
 
+    public static final String SOURCE_IP_FIELD = "sourceIP";
     private String sourceIP;
+
+    public static final String DEST_URL_FIELD = "destURL";
     private String destURL;
+
+    public static final String VISIT_DATE_FIELD = "visitDate";
     private Timestamp visitDate;
+
+    public static final String AD_REVENUE_FIELD = "adRevenue";
     private Float adRevenue;
+
+    public static final String USER_AGENTL_FIELD = "userAgent";
     private String userAgent;
+
+    public static final String COUNTRY_CODE_FIELD = "countryCode";
     private String countryCode;
+
+    public static final String LANGUAGE_CODE_FIELD = "languageCode";
     private String languageCode;
+
+    public static final String SEARCH_WORD_FIELD = "searchWord";
     private String searchWord;
+
+    public static final String DURATION_FIELD = "duration";
     private Integer duration;
 
     /**
@@ -44,11 +61,12 @@ public class UserVisit {
     /**
      * Constructor de la clase. Se le pasan como parametros los valores de los
      * atributos de la instancia que queremos crear.
+     *
      * @param sourceIP Direccion ip de origen.
      * @param destURL URL de destino.
      * @param visitDate Fecha de la solicitud.
-     * @param adRevenue 
-     * @param userAgent 
+     * @param adRevenue
+     * @param userAgent
      * @param countryCode Codigo identificativo del pais desde el que se hizo la
      * solicitud.
      * @param languageCode Codigo de idioma.

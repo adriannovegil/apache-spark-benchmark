@@ -23,8 +23,13 @@ package es.devcircus.apache.spark.benchmark.sql.model;
  */
 public class Ranking {
 
+    public static final String PAGE_URL_FIELD = "pageURL";
     private String pageURL;
+
+    public static final String PAGE_RANK_FIELD = "pageRank";
     private Integer pageRank;
+
+    public static final String AVG_DURATION_FIELD = "avgDuration";
     private Integer avgDuration;
 
     /**
@@ -37,7 +42,7 @@ public class Ranking {
      * Constructor de la clase. Se le pasan como parametros los valores de los
      * atributos de la instancia que queremos crear.
      *
-     * @param pageURL URL de la pagina. 
+     * @param pageURL URL de la pagina.
      * @param pageRank Ranking de la pagina.
      * @param avgDuration Tiempo medio.
      */

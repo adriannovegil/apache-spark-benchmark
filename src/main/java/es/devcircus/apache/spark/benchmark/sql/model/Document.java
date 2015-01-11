@@ -23,6 +23,7 @@ package es.devcircus.apache.spark.benchmark.sql.model;
  */
 public class Document {
 
+    public static final String LINE_FIELD = "line";
     private String line;
 
     /**

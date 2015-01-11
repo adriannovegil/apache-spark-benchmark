@@ -17,6 +17,8 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.tests.query03;
 
+import es.devcircus.apache.spark.benchmark.sql.model.Ranking;
+import es.devcircus.apache.spark.benchmark.sql.model.UserVisit;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -107,9 +109,9 @@ public class Query03ProgrammaticallyTest {
         List<StructField> rankingFields = new ArrayList<>();
         // Para cada uno de los atributos especificamos el nombre y el tipo de 
         // dato.
-        rankingFields.add(DataType.createStructField("pageURL", DataType.StringType, true));
-        rankingFields.add(DataType.createStructField("pageRank", DataType.IntegerType, true));
-        rankingFields.add(DataType.createStructField("avgDuration", DataType.IntegerType, true));
+        rankingFields.add(DataType.createStructField(Ranking.PAGE_URL_FIELD, DataType.StringType, true));
+        rankingFields.add(DataType.createStructField(Ranking.PAGE_RANK_FIELD, DataType.IntegerType, true));
+        rankingFields.add(DataType.createStructField(Ranking.AVG_DURATION_FIELD, DataType.IntegerType, true));
         // Cremos el esquema de datos a partir de los campos creados.
         StructType rankingSchema = DataType.createStructType(rankingFields);
 
@@ -132,15 +134,15 @@ public class Query03ProgrammaticallyTest {
         List<StructField> userVisitsFields = new ArrayList<>();
         // Para cada uno de los atributos especificamos el nombre y el tipo de 
         // dato.
-        userVisitsFields.add(DataType.createStructField("sourceIP", DataType.StringType, true));
-        userVisitsFields.add(DataType.createStructField("destURL", DataType.StringType, true));
-        userVisitsFields.add(DataType.createStructField("visitDate", DataType.TimestampType, true));
-        userVisitsFields.add(DataType.createStructField("adRevenue", DataType.FloatType, true));
-        userVisitsFields.add(DataType.createStructField("userAgent", DataType.StringType, true));
-        userVisitsFields.add(DataType.createStructField("countryCode", DataType.StringType, true));
-        userVisitsFields.add(DataType.createStructField("languageCode", DataType.StringType, true));
-        userVisitsFields.add(DataType.createStructField("searchWord", DataType.StringType, true));
-        userVisitsFields.add(DataType.createStructField("duration", DataType.IntegerType, true));
+        userVisitsFields.add(DataType.createStructField(UserVisit.SOURCE_IP_FIELD, DataType.StringType, true));
+        userVisitsFields.add(DataType.createStructField(UserVisit.DEST_URL_FIELD, DataType.StringType, true));
+        userVisitsFields.add(DataType.createStructField(UserVisit.VISIT_DATE_FIELD, DataType.TimestampType, true));
+        userVisitsFields.add(DataType.createStructField(UserVisit.AD_REVENUE_FIELD, DataType.FloatType, true));
+        userVisitsFields.add(DataType.createStructField(UserVisit.USER_AGENTL_FIELD, DataType.StringType, true));
+        userVisitsFields.add(DataType.createStructField(UserVisit.COUNTRY_CODE_FIELD, DataType.StringType, true));
+        userVisitsFields.add(DataType.createStructField(UserVisit.LANGUAGE_CODE_FIELD, DataType.StringType, true));
+        userVisitsFields.add(DataType.createStructField(UserVisit.SEARCH_WORD_FIELD, DataType.StringType, true));
+        userVisitsFields.add(DataType.createStructField(UserVisit.DURATION_FIELD, DataType.IntegerType, true));
         // Cremos el esquema de datos a partir de los campos creados.
         StructType userVisitsSchema = DataType.createStructType(userVisitsFields);
 
