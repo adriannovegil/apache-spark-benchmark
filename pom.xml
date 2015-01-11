@@ -9,7 +9,7 @@
     
     <!-- The basics -->
     <groupId>es.devcircus.apache.spark.benchmark</groupId>
-    <artifactId>apache-spark-sql-benchmark</artifactId>
+    <artifactId>apache-spark-benchmark</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>jar</packaging>
   
