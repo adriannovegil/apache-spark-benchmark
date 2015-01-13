@@ -18,6 +18,7 @@
 package es.devcircus.apache.spark.benchmark.sql.tests.query01;
 
 import es.devcircus.apache.spark.benchmark.sql.model.Ranking;
+import es.devcircus.apache.spark.benchmark.util.Test;
 import java.util.List;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaRDD;
@@ -56,34 +57,52 @@ import org.apache.spark.sql.api.java.Row;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query01ReflectionTest {
+public class Query01ReflectionTest extends Test {
+
+    private SparkConf sparkConf;
+    private JavaSparkContext ctx;
+    private JavaSQLContext sqlCtx;
 
     /**
-     * Método principal.
+     * Metodo que se encarga de la inicializacion del contexto Spark de
+     * ejecucion, variables de entorno, etc.
      *
-     * @param args Argumentos que le pasamos al programa.
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
      */
-    public static void main(String[] args) {
-
-        /**
-         * Once you have launched the Spark shell, the next step is to create a
-         * SQLContext. A SQLConext wraps the SparkContext, which you used in the
-         * previous lesson, and adds functions for working with structured data.
-         */
+    @Override
+    public Boolean prepare() {
+        // Intanciamos el objeto de configuracion.
+        this.sparkConf = new SparkConf();
+        // Indicamos la direccion al nodo master. El valor puede ser la ip del
+        // nodo master, o "local" en el caso de que querramos ejecutar la app
+        // en modo local.
+        this.sparkConf.setMaster("local");
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
-        // para su ejecución.
-        SparkConf sparkConf = new SparkConf().setAppName("asb:java:sql:query01-reflection-test");
+        // para su ejecucion.
+        this.sparkConf.setAppName("asb:java:sql:query01-reflection-test");
+        // Seteamos el path a la instalacion de spark
+        this.sparkConf.setSparkHome("/opt/spark/bin/spark-submit");
         // Creamos un contexto de spark.
-        JavaSparkContext ctx = new JavaSparkContext(sparkConf);
+        this.ctx = new JavaSparkContext(this.sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
-        JavaSQLContext sqlCtx = new JavaSQLContext(ctx);
+        this.sqlCtx = new JavaSQLContext(this.ctx);
+        // Retornamos true indicando que el metodo ha terminado correctamente
+        return true;
+    }
+
+    /**
+     * Metodo que ejecuta el core de la prueba que estamos realizando.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean execute() {
 
         // Cargamos los datos desde el fichero de raking.
         JavaRDD<String> rankingData = ctx.textFile("/media/adrian/data/apache_spark_data/text-deflate/tiny/rankings");
 
-        // ---------------------------------------------------------------------
-        //  Contamos el numero de resultados cargados.
-        // ---------------------------------------------------------------------
         // Contamos los resultados recuperados.
         Long countResult = rankingData.count();
         // Mostramos el resultado del conteo por pantalla.
@@ -119,27 +138,63 @@ public class Query01ReflectionTest {
         // Registramos la tabla rankings
         rankingSchemaRDD.registerTempTable("rankings");
 
-        // ---------------------------------------------------------------------
         //  Lanzamos la query
-        // ---------------------------------------------------------------------
         JavaSchemaRDD results = sqlCtx.sql("SELECT pageURL, pageRank FROM rankings WHERE pageRank > 10");
+        
+        // Si esta activo el modo de debug llamamos al metodo que muestra los 
+        // datos.
+        if (true) {
+            this.debug(results);
+        }
+        // Retornamos true indicando que el metodo ha terminado correctamente
+        return true;
+    }
 
-        // ---------------------------------------------------------------------
-        //  Mostramos el resultado por pantalla.
-        // ---------------------------------------------------------------------
+    /**
+     * Metodo que se encarga del procesado de los datos del benchmark,
+     * generacion de resultados, etc.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean commit() {
+        // Indicamos que todo ha sucedido correctamente.
+        return true;
+    }
+
+    /**
+     * Metodo encargado de finalizar la ejecucion del benchmark, cierre de
+     * contextos, etc.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean close() {
+        // Paramos el contexto.
+        this.ctx.stop();
+        // Indicamos que todo ha sucedido correctamente.
+        return true;
+    }
+
+    /**
+     * Metodo interno para mostrar los datos por pantalla. Se usa para verificar
+     * que la operacion se ha realizado correctamente.
+     *
+     * @param results Resultado obtenidos de la operacion realizada.
+     */
+    private void debug(JavaSchemaRDD results) {
+        // Extraemos los resultados a partir del objeto JavaSchemaRDD
         List<String> names = results.map(new Function<Row, String>() {
             @Override
             public String call(Row row) {
                 return "pageURL..: " + row.getString(0) + " - pageRank..: " + row.getInt(1);
             }
         }).collect();
-
         // Sacamos por pantalla los resultados de la query
         for (String name : names) {
             System.out.println(name);
         }
-
-        // Paramos el contexto.
-        ctx.stop();
     }
 }

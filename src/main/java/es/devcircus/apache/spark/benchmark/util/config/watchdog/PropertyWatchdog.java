@@ -15,40 +15,29 @@
  * this program; see the file COPYING. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package es.devcircus.apache.spark.benchmark;
+package es.devcircus.apache.spark.benchmark.util.config.watchdog;
 
-import es.devcircus.apache.spark.benchmark.sql.tests.query02.Query02ProgrammaticallyTest;
-import java.io.IOException;
+import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 
 /**
- * Main class
  *
- * @author Adrian Novegil Toledo <adrian.novegil@gmail.com>
+ * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Main {
-
-    /**
-     * Timeout in milliseconds to wait for every run
-     */
-    private static long timeout;
-
-    /**
-     * Name of the active persistence unit
-     */
-    private static String persistenceUnitName = "prueba";
+public class PropertyWatchdog extends FileWatchdog {
 
     /**
      *
-     * @param args
+     * @param filename
      */
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public PropertyWatchdog(String filename) {
+        super(filename);
+    }
 
-        Query02ProgrammaticallyTest test = new Query02ProgrammaticallyTest();
-        
-        test.prepare();
-        test.execute();
-        test.commit();
-        test.close();
-        
+    /**
+     *
+     */
+    @Override
+    public void doOnChange() {
+        ConfigurationManager.loadConfigure(filename);
     }
 }

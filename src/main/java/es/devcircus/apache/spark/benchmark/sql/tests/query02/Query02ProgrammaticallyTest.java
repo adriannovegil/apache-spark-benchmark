@@ -18,6 +18,7 @@
 package es.devcircus.apache.spark.benchmark.sql.tests.query02;
 
 import es.devcircus.apache.spark.benchmark.sql.model.UserVisit;
+import es.devcircus.apache.spark.benchmark.util.Test;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -56,36 +57,54 @@ import org.apache.spark.sql.api.java.StructType;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query02ProgrammaticallyTest {
+public class Query02ProgrammaticallyTest extends Test {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
-    /**
-     * Método principal.
-     *
-     * @param args Argumentos que le pasamos al programa.
-     */
-    public static void main(String[] args) {
+    private SparkConf sparkConf;
+    private JavaSparkContext ctx;
+    private JavaSQLContext sqlCtx;
 
-        /**
-         * Once you have launched the Spark shell, the next step is to create a
-         * SQLContext. A SQLConext wraps the SparkContext, which you used in the
-         * previous lesson, and adds functions for working with structured data.
-         */
+    /**
+     * Metodo que se encarga de la inicializacion del contexto Spark de
+     * ejecucion, variables de entorno, etc.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean prepare() {
+        // Intanciamos el objeto de configuracion.
+        this.sparkConf = new SparkConf();
+        // Indicamos la direccion al nodo master. El valor puede ser la ip del
+        // nodo master, o "local" en el caso de que querramos ejecutar la app
+        // en modo local.
+        this.sparkConf.setMaster("local");
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
-        // para su ejecución.
-        SparkConf sparkConf = new SparkConf().setAppName("asb:java:sql:query01-programmatically-test");
+        // para su ejecucion.
+        this.sparkConf.setAppName("asb:java:sql:query01-programmatically-test");
+        // Seteamos el path a la instalacion de spark
+        this.sparkConf.setSparkHome("/opt/spark/bin/spark-submit");
         // Creamos un contexto de spark.
-        JavaSparkContext ctx = new JavaSparkContext(sparkConf);
+        this.ctx = new JavaSparkContext(sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
-        JavaSQLContext sqlCtx = new JavaSQLContext(ctx);
+        this.sqlCtx = new JavaSQLContext(ctx);
+        // Retornamos true indicando que el metodo ha terminado correctamente
+        return true;
+    }
+
+    /**
+     * Metodo que ejecuta el core de la prueba que estamos realizando.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean execute() {
 
         // Cargamos los datos desde el fichero de uservisits.
         JavaRDD<String> uservisitsData = ctx.textFile("/media/adrian/data/apache_spark_data/text-deflate/tiny/uservisits");
 
-        // ---------------------------------------------------------------------
-        //  Contamos el numero de resultados cargados.
-        // ---------------------------------------------------------------------
         // Contamos los resultados recuperados.
         Long countResult = uservisitsData.count();
         // Mostramos el resultado del conteo por pantalla.
@@ -141,28 +160,64 @@ public class Query02ProgrammaticallyTest {
 
         // Registramos la tabla rankings
         rankingSchemaRDD.registerTempTable("uservisits");
-
-        // ---------------------------------------------------------------------
-        //  Lanzamos la query
-        // ---------------------------------------------------------------------
+        
+        //  Lanzamos la query        
         JavaSchemaRDD results = sqlCtx.sql("SELECT SUBSTR(sourceIP, 1, 10), SUM(adRevenue) FROM uservisits GROUP BY SUBSTR(sourceIP, 1, 10)");
+        
+        // Si esta activo el modo de debug llamamos al metodo que muestra los 
+        // datos.
+        if (true) {
+            this.debug(results);
+        }
+        // Retornamos true indicando que el metodo ha terminado correctamente
+        return true;
+    }
 
-        // ---------------------------------------------------------------------
-        //  Mostramos el resultado por pantalla.
-        // ---------------------------------------------------------------------
+    /**
+     * Metodo que se encarga del procesado de los datos del benchmark,
+     * generacion de resultados, etc.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean commit() {
+        // Indicamos que todo ha sucedido correctamente.
+        return true;
+    }
+
+    /**
+     * Metodo encargado de finalizar la ejecucion del benchmark, cierre de
+     * contextos, etc.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean close() {
+        // Paramos el contexto.
+        this.ctx.stop();
+        // Indicamos que todo ha sucedido correctamente.
+        return true;
+    }
+
+    /**
+     * Metodo interno para mostrar los datos por pantalla. Se usa para verificar
+     * que la operacion se ha realizado correctamente.
+     *
+     * @param results Resultado obtenidos de la operacion realizada.
+     */
+    private void debug(JavaSchemaRDD results) {
+        // Extraemos los resultados a partir del objeto JavaSchemaRDD
         List<String> names = results.map(new Function<Row, String>() {
             @Override
             public String call(Row row) {
                 return "SUBSTR..: " + row.getString(0) + " - SUM..: " + row.getDouble(1);
             }
         }).collect();
-
         // Sacamos por pantalla los resultados de la query
         for (String name : names) {
             System.out.println(name);
         }
-
-        // Paramos el contexto.
-        ctx.stop();
     }
 }

@@ -17,6 +17,7 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.tests.query04;
 
+import es.devcircus.apache.spark.benchmark.util.Test;
 import java.util.List;
 import org.apache.spark.SparkConf;
 import org.apache.spark.SparkContext;
@@ -58,103 +59,120 @@ import org.apache.spark.sql.hive.api.java.JavaHiveContext;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query04HiveTest {
+public class Query04HiveTest extends Test {
+
+    private SparkConf sparkConf;
+    private JavaSparkContext ctx;
+    private JavaHiveContext sqlCtx;
 
     /**
-     * Método principal.
+     * Metodo que se encarga de la inicializacion del contexto Spark de
+     * ejecucion, variables de entorno, etc.
      *
-     * @param args Argumentos que le pasamos al programa.
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
      */
-    public static void main(String[] args) {
-
-        /**
-         * Once you have launched the Spark shell, the next step is to create a
-         * SQLContext. A SQLConext wraps the SparkContext, which you used in the
-         * previous lesson, and adds functions for working with structured data.
-         */
+    @Override
+    public Boolean prepare() {
+        // Intanciamos el objeto de configuracion.
+        this.sparkConf = new SparkConf();
+        // Indicamos la direccion al nodo master. El valor puede ser la ip del
+        // nodo master, o "local" en el caso de que querramos ejecutar la app
+        // en modo local.
+        this.sparkConf.setMaster("local");
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
-        // para su ejecución.
-        SparkConf sparkConf = new SparkConf().setAppName("asb:java:sql:query04-hive-test");        
+        // para su ejecucion.
+        this.sparkConf.setAppName("asb:java:sql:query04-hive-test");
+        // Seteamos el path a la instalacion de spark
+        this.sparkConf.setSparkHome("/opt/spark/bin/spark-submit");
         // Creamos un contexto de spark.
-        JavaSparkContext ctx = new JavaSparkContext(sparkConf);        
+        this.ctx = new JavaSparkContext(this.sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
-        JavaHiveContext sqlCtx = new JavaHiveContext(ctx);
-        
-//        SparkContext sparkContext = new SparkContext(sparkConf);                
-//        SQLContext context = new SQLContext(sparkContext);        
-//        context.setConf("hive.metastore.warehouse.dir", "/tmp/warehouse");  
-        
-        
-        
-        
-//        sparkConf.set("hive.metastore.warehouse.dir", "/tmp");
+        this.sqlCtx = new JavaHiveContext(this.ctx);
+        // Retornamos true indicando que el metodo ha terminado correctamente
+        return true;
+    }
 
-        // ---------------------------------------------------------------------
-        //  Momento SQL.
-        // ---------------------------------------------------------------------
-        
-        
-//        sqlCtx.hql("SET hive.metastore.warehouse.dir=/tmp");
-        
-        
+    /**
+     * Metodo que ejecuta el core de la prueba que estamos realizando.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean execute() {
+
         // Si existiese previamente la tabla, nos la cargamos.
         sqlCtx.hql("DROP TABLE IF EXISTS documents");
 
         // Creamos la tabla y cargamo slos datos.
         sqlCtx.hql("CREATE EXTERNAL TABLE documents (line STRING) "
                 + "STORED AS TEXTFILE LOCATION '/media/adrian/data/apache_spark_data/text-deflate/tiny/crawl'");
-
         sqlCtx.hql("DROP TABLE IF EXISTS url_counts_partial");
-
         sqlCtx.hql("CREATE TABLE url_counts_partial AS"
                 + " SELECT TRANSFORM (line)"
                 + " USING 'python /tmp/url_count.py' as (sourcePage,"
                 + " destPage, count) from documents");
-        
-//        sqlCtx.sql("DROP TABLE IF EXISTS url_counts_total");
-//
-//        sqlCtx.sql(" CREATE TABLE url_counts_total AS"
-//                + " SELECT SUM(count) AS totalCount, destpage"
-//                + " FROM url_counts_partial GROUP BY destpage");
 
-        // Lanzamos las query sobre los datos.
-//        JavaSchemaRDD results = sqlCtx.sql(
-//                "DROP TABLE IF EXISTS url_counts_partial;"
-//                + " CREATE TABLE url_counts_partial AS"
-//                + " SELECT TRANSFORM (line)"
-//                + " USING 'python /tmp/url_count.py' as (sourcePage,"
-//                + " destPage, count) from documents;"
-//                + " DROP TABLE IF EXISTS url_counts_total;"
-//                + " CREATE TABLE url_counts_total AS"
-//                + " SELECT SUM(count) AS totalCount, destpage"
-//                + " FROM url_counts_partial GROUP BY destpage;");
-//        JavaSchemaRDD results1 = sqlCtx.sql("DROP TABLE IF EXISTS url_counts_partial");
-//        JavaSchemaRDD results2 = sqlCtx.sql(
-//                " CREATE TABLE url_counts_partial AS"
-//                    + " SELECT TRANSFORM (line)"
-//                    + " USING 'python /tmp/url_count.py' as (sourcePage,"
-//                        + " destPage, count) from documents");
-//        JavaSchemaRDD results3 = sqlCtx.sql(" DROP TABLE IF EXISTS url_counts_total");
-//        JavaSchemaRDD results4 = sqlCtx.sql(
-//                " CREATE TABLE url_counts_total AS"
-//                    + " SELECT SUM(count) AS totalCount, destpage"
-//                    + " FROM url_counts_partial GROUP BY destpage");
-        // ---------------------------------------------------------------------
-        //  Mostramos el resultado por pantalla.
-        // ---------------------------------------------------------------------
-//        List<String> names = results.map(new Function<Row, String>() {
-//            @Override
-//            public String call(Row row) {
-//                return "SUBSTR..: " + row.getString(0) + " - SUM..: " + row.getDouble(1);
-//            }
-//        }).collect();
-//
-//        // Sacamos por pantalla los resultados de la query
-//        for (String name : names) {
-//            System.out.println(name);
-//        }
+        // Lanzamos una query para recuperar los datos procesados y verificar
+        // el resultado.        
+        JavaSchemaRDD results = sqlCtx.hql("SELECT * FROM url_counts_partial");
         
-        // Paramos el contexto.
-        ctx.stop();
+        // Si esta activo el modo de debug llamamos al metodo que muestra los 
+        // datos.
+        if (true) {
+            this.debug(results);
+        }
+        // Retornamos true indicando que el metodo ha terminado correctamente
+        return true;
     }
+
+    /**
+     * Metodo que se encarga del procesado de los datos del benchmark,
+     * generacion de resultados, etc.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean commit() {
+        // Indicamos que todo ha sucedido correctamente.
+        return true;
+    }
+
+    /**
+     * Metodo encargado de finalizar la ejecucion del benchmark, cierre de
+     * contextos, etc.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean close() {
+        // Paramos el contexto.
+        this.ctx.stop();
+        // Indicamos que todo ha sucedido correctamente.
+        return true;
+    }
+
+    /**
+     * Metodo interno para mostrar los datos por pantalla. Se usa para verificar
+     * que la operacion se ha realizado correctamente.
+     *
+     * @param results Resultado obtenidos de la operacion realizada.
+     */
+    private void debug(JavaSchemaRDD results) {
+        // Extraemos los resultados a partir del objeto JavaSchemaRDD
+        List<String> names = results.map(new Function<Row, String>() {
+            @Override
+            public String call(Row row) {
+                return "01..: " + row.getString(0) + " - 02..: " + row.getString(1) + " - 03..: " + row.getString(2);
+            }
+        }).collect();
+        // Sacamos por pantalla los resultados de la query
+        for (String name : names) {
+            System.out.println(name);
+        }
+    }
+
 }

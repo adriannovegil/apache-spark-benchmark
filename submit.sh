@@ -5,7 +5,7 @@
 # ------------------------------------------------------------------------------
 
 # Programmatically
-#/opt/spark/bin/spark-submit --class es.devcircus.apache.spark.benchmark.sql.tests.query01.Query01ProgrammaticallyTest --master local target/apache-spark-benchmark-0.0.1-SNAPSHOT.jar
+/opt/spark/bin/spark-submit --class es.devcircus.apache.spark.benchmark.sql.tests.query01.Query01ProgrammaticallyTest --master local target/apache-spark-benchmark-0.0.1-SNAPSHOT.jar
 
 # Reflection
 #/opt/spark/bin/spark-submit --class es.devcircus.apache.spark.benchmark.sql.tests.query01.Query01ReflectionTest --master local target/apache-spark-benchmark-0.0.1-SNAPSHOT.jar
