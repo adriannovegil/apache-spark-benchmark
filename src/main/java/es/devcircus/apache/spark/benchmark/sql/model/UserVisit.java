@@ -17,39 +17,40 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.model;
 
+import java.io.Serializable;
 import java.sql.Timestamp;
 
 /**
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class UserVisit {
+public class UserVisit implements Serializable {
 
-    public static final String SOURCE_IP_FIELD = "sourceIP";
+    public static final String SOURCE_IP_KEY = "sourceIP";
     private String sourceIP;
 
-    public static final String DEST_URL_FIELD = "destURL";
+    public static final String DEST_URL_KEY = "destURL";
     private String destURL;
 
-    public static final String VISIT_DATE_FIELD = "visitDate";
+    public static final String VISIT_DATE_KEY = "visitDate";
     private Timestamp visitDate;
 
-    public static final String AD_REVENUE_FIELD = "adRevenue";
+    public static final String AD_REVENUE_KEY = "adRevenue";
     private Float adRevenue;
 
-    public static final String USER_AGENTL_FIELD = "userAgent";
+    public static final String USER_AGENTL_KEY = "userAgent";
     private String userAgent;
 
-    public static final String COUNTRY_CODE_FIELD = "countryCode";
+    public static final String COUNTRY_CODE_KEY = "countryCode";
     private String countryCode;
 
-    public static final String LANGUAGE_CODE_FIELD = "languageCode";
+    public static final String LANGUAGE_CODE_KEY = "languageCode";
     private String languageCode;
 
-    public static final String SEARCH_WORD_FIELD = "searchWord";
+    public static final String SEARCH_WORD_KEY = "searchWord";
     private String searchWord;
 
-    public static final String DURATION_FIELD = "duration";
+    public static final String DURATION_KEY = "duration";
     private Integer duration;
 
     /**

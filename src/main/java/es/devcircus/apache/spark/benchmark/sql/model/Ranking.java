@@ -17,19 +17,21 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Ranking {
+public class Ranking implements Serializable {
 
-    public static final String PAGE_URL_FIELD = "pageURL";
+    public static final String PAGE_URL_KEY = "pageURL";
     private String pageURL;
 
-    public static final String PAGE_RANK_FIELD = "pageRank";
+    public static final String PAGE_RANK_KEY = "pageRank";
     private Integer pageRank;
 
-    public static final String AVG_DURATION_FIELD = "avgDuration";
+    public static final String AVG_DURATION_KEY = "avgDuration";
     private Integer avgDuration;
 
     /**

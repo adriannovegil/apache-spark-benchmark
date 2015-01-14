@@ -18,6 +18,7 @@
 package es.devcircus.apache.spark.benchmark.sql.tests.query02;
 
 import es.devcircus.apache.spark.benchmark.util.Test;
+import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.List;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -51,9 +52,9 @@ import org.apache.spark.sql.hive.api.java.JavaHiveContext;
  */
 public class Query02HiveTest extends Test {
 
-    private SparkConf sparkConf;
-    private JavaSparkContext ctx;
-    private JavaHiveContext sqlCtx;
+    private static SparkConf sparkConf;
+    private static JavaSparkContext ctx;
+    private static JavaHiveContext sqlCtx;
 
     /**
      * Metodo que se encarga de la inicializacion del contexto Spark de
@@ -65,20 +66,23 @@ public class Query02HiveTest extends Test {
     @Override
     public Boolean prepare() {
         // Intanciamos el objeto de configuracion.
-        this.sparkConf = new SparkConf();
+        sparkConf = new SparkConf();
         // Indicamos la direccion al nodo master. El valor puede ser la ip del
         // nodo master, o "local" en el caso de que querramos ejecutar la app
         // en modo local.
-        this.sparkConf.setMaster("local");
+        sparkConf.setMaster(
+                ConfigurationManager.get("apache.benchmark.config.global.master"));
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
         // para su ejecucion.
-        this.sparkConf.setAppName("asb:java:sql:query02-hive-test");
+        sparkConf.setAppName(
+                ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.name"));
         // Seteamos el path a la instalacion de spark
-        this.sparkConf.setSparkHome("/opt/spark/bin/spark-submit");
+        sparkConf.setSparkHome(
+                ConfigurationManager.get("apache.benchmark.config.global.spark.home"));
         // Creamos un contexto de spark.
-        this.ctx = new JavaSparkContext(this.sparkConf);
+        ctx = new JavaSparkContext(sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
-        this.sqlCtx = new JavaHiveContext(this.ctx);
+        sqlCtx = new JavaHiveContext(ctx);
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
@@ -91,20 +95,20 @@ public class Query02HiveTest extends Test {
      */
     @Override
     public Boolean execute() {
-
         // Si existiese previamente la tabla, nos la cargamos.
         sqlCtx.hql("DROP TABLE IF EXISTS uservisits");
-
         // Creamos la tabla y cargamo slos datos.
         sqlCtx.hql("CREATE EXTERNAL TABLE uservisits (sourceIP STRING,destURL STRING,"
                 + " visitDate STRING,adRevenue DOUBLE,userAgent STRING,countryCode STRING,"
                 + " languageCode STRING,searchWord STRING,duration INT )"
                 + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
-                + " STORED AS TEXTFILE LOCATION '/media/adrian/data/apache_spark_data/text-deflate/tiny/uservisits'");
-
-        // Lanzamos las query sobre los datos.
-        JavaSchemaRDD results = sqlCtx.sql("SELECT SUBSTR(sourceIP, 1, 10), SUM(adRevenue) FROM uservisits GROUP BY SUBSTR(sourceIP, 1, 10)");
-        
+                + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/uservisits'");
+        JavaSchemaRDD results = null;
+        // Repetimos la ejecucion de la query tantas veces como sea necesario.        
+        for (int i = 0; i < NUM_TRIALS; i++) {
+            // Lanzamos las query sobre los datos.
+            results = sqlCtx.sql("SELECT SUBSTR(sourceIP, 1, 10), SUM(adRevenue) FROM uservisits GROUP BY SUBSTR(sourceIP, 1, 10)");
+        }
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (true) {
@@ -137,7 +141,7 @@ public class Query02HiveTest extends Test {
     @Override
     public Boolean close() {
         // Paramos el contexto.
-        this.ctx.stop();
+        ctx.stop();
         // Indicamos que todo ha sucedido correctamente.
         return true;
     }

@@ -174,7 +174,7 @@ public class ConfigurationManager {
         Properties props = new Properties();
         InputStream istream = null;
         try {
-            istream = new FileInputStream(BASE_CONFIG_DIR + "/" + configFileName);
+            istream = ConfigurationManager.class.getResourceAsStream(BASE_CONFIG_DIR + "/" + configFileName);
             props.load(istream);
             istream.close();
         } catch (Exception e) {

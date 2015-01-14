@@ -18,12 +18,11 @@
 package es.devcircus.apache.spark.benchmark.sql.tests.query04;
 
 import es.devcircus.apache.spark.benchmark.util.Test;
+import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.List;
 import org.apache.spark.SparkConf;
-import org.apache.spark.SparkContext;
 import org.apache.spark.api.java.JavaSparkContext;
 import org.apache.spark.api.java.function.Function;
-import org.apache.spark.sql.SQLContext;
 import org.apache.spark.sql.api.java.JavaSchemaRDD;
 import org.apache.spark.sql.api.java.Row;
 import org.apache.spark.sql.hive.api.java.JavaHiveContext;
@@ -61,9 +60,9 @@ import org.apache.spark.sql.hive.api.java.JavaHiveContext;
  */
 public class Query04HiveTest extends Test {
 
-    private SparkConf sparkConf;
-    private JavaSparkContext ctx;
-    private JavaHiveContext sqlCtx;
+    private static SparkConf sparkConf;
+    private static JavaSparkContext ctx;
+    private static JavaHiveContext sqlCtx;
 
     /**
      * Metodo que se encarga de la inicializacion del contexto Spark de
@@ -75,20 +74,23 @@ public class Query04HiveTest extends Test {
     @Override
     public Boolean prepare() {
         // Intanciamos el objeto de configuracion.
-        this.sparkConf = new SparkConf();
+        sparkConf = new SparkConf();
         // Indicamos la direccion al nodo master. El valor puede ser la ip del
         // nodo master, o "local" en el caso de que querramos ejecutar la app
         // en modo local.
-        this.sparkConf.setMaster("local");
+        sparkConf.setMaster(
+                ConfigurationManager.get("apache.benchmark.config.global.master"));
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
         // para su ejecucion.
-        this.sparkConf.setAppName("asb:java:sql:query04-hive-test");
+        sparkConf.setAppName(
+                ConfigurationManager.get("apache.benchmark.config.sql.query.04.hive.name"));
         // Seteamos el path a la instalacion de spark
-        this.sparkConf.setSparkHome("/opt/spark/bin/spark-submit");
+        sparkConf.setSparkHome(
+                ConfigurationManager.get("apache.benchmark.config.global.spark.home"));
         // Creamos un contexto de spark.
-        this.ctx = new JavaSparkContext(this.sparkConf);
+        ctx = new JavaSparkContext(sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
-        this.sqlCtx = new JavaHiveContext(this.ctx);
+        sqlCtx = new JavaHiveContext(ctx);
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
@@ -100,24 +102,23 @@ public class Query04HiveTest extends Test {
      * contrario.
      */
     @Override
-    public Boolean execute() {
-
-        // Si existiese previamente la tabla, nos la cargamos.
-        sqlCtx.hql("DROP TABLE IF EXISTS documents");
-
-        // Creamos la tabla y cargamo slos datos.
-        sqlCtx.hql("CREATE EXTERNAL TABLE documents (line STRING) "
-                + "STORED AS TEXTFILE LOCATION '/media/adrian/data/apache_spark_data/text-deflate/tiny/crawl'");
-        sqlCtx.hql("DROP TABLE IF EXISTS url_counts_partial");
-        sqlCtx.hql("CREATE TABLE url_counts_partial AS"
-                + " SELECT TRANSFORM (line)"
-                + " USING 'python /tmp/url_count.py' as (sourcePage,"
-                + " destPage, count) from documents");
-
+    public Boolean execute() {        
+        // Repetimos la ejecucion de la query tantas veces como sea necesario.        
+        for (int i = 0; i < NUM_TRIALS; i++) {
+            // Si existiese previamente la tabla, nos la cargamos.
+            sqlCtx.hql("DROP TABLE IF EXISTS documents");
+            // Creamos la tabla y cargamo slos datos.
+            sqlCtx.hql("CREATE EXTERNAL TABLE documents (line STRING) "
+                    + "STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/crawl'");
+            sqlCtx.hql("DROP TABLE IF EXISTS url_counts_partial");
+            sqlCtx.hql("CREATE TABLE url_counts_partial AS"
+                    + " SELECT TRANSFORM (line)"
+                    + " USING 'python /tmp/url_count.py' as (sourcePage,"
+                    + " destPage, count) from documents");
+        }
         // Lanzamos una query para recuperar los datos procesados y verificar
         // el resultado.        
         JavaSchemaRDD results = sqlCtx.hql("SELECT * FROM url_counts_partial");
-        
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (true) {
@@ -150,7 +151,7 @@ public class Query04HiveTest extends Test {
     @Override
     public Boolean close() {
         // Paramos el contexto.
-        this.ctx.stop();
+        ctx.stop();
         // Indicamos que todo ha sucedido correctamente.
         return true;
     }

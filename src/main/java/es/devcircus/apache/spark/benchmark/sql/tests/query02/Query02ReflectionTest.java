@@ -19,6 +19,7 @@ package es.devcircus.apache.spark.benchmark.sql.tests.query02;
 
 import es.devcircus.apache.spark.benchmark.sql.model.UserVisit;
 import es.devcircus.apache.spark.benchmark.util.Test;
+import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -57,9 +58,9 @@ public class Query02ReflectionTest extends Test {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
-    private SparkConf sparkConf;
-    private JavaSparkContext ctx;
-    private JavaSQLContext sqlCtx;
+    private static SparkConf sparkConf;
+    private static JavaSparkContext ctx;
+    private static JavaSQLContext sqlCtx;
 
     /**
      * Metodo que se encarga de la inicializacion del contexto Spark de
@@ -71,20 +72,23 @@ public class Query02ReflectionTest extends Test {
     @Override
     public Boolean prepare() {
         // Intanciamos el objeto de configuracion.
-        this.sparkConf = new SparkConf();
+        sparkConf = new SparkConf();
         // Indicamos la direccion al nodo master. El valor puede ser la ip del
         // nodo master, o "local" en el caso de que querramos ejecutar la app
         // en modo local.
-        this.sparkConf.setMaster("local");
+        sparkConf.setMaster(
+                ConfigurationManager.get("apache.benchmark.config.global.master"));
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
         // para su ejecucion.
-        this.sparkConf.setAppName("asb:java:sql:query01-reflection-test");
+        sparkConf.setAppName(
+                ConfigurationManager.get("apache.benchmark.config.sql.query.02.reflection.name"));
         // Seteamos el path a la instalacion de spark
-        this.sparkConf.setSparkHome("/opt/spark/bin/spark-submit");
+        sparkConf.setSparkHome(
+                ConfigurationManager.get("apache.benchmark.config.global.spark.home"));
         // Creamos un contexto de spark.
-        this.ctx = new JavaSparkContext(this.sparkConf);
+        ctx = new JavaSparkContext(sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
-        this.sqlCtx = new JavaSQLContext(this.ctx);
+        sqlCtx = new JavaSQLContext(ctx);
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
@@ -97,15 +101,12 @@ public class Query02ReflectionTest extends Test {
      */
     @Override
     public Boolean execute() {
-
         // Cargamos los datos desde el fichero de uservisits.
-        JavaRDD<String> uservisitsData = ctx.textFile("/media/adrian/data/apache_spark_data/text-deflate/tiny/uservisits");
-
+        JavaRDD<String> uservisitsData = ctx.textFile(BASE_DATA_PATH + "/uservisits");
         // Contamos los resultados recuperados.
         Long countResult = uservisitsData.count();
         // Mostramos el resultado del conteo por pantalla.
         System.out.println("Resultado del conteo del RDD...: " + countResult);
-
         // ---------------------------------------------------------------------
         //  Mapeamos los datos leidos a objetos del modelo
         // ---------------------------------------------------------------------        
@@ -130,7 +131,6 @@ public class Query02ReflectionTest extends Test {
                         return userVisit;
                     }
                 });
-
         // ---------------------------------------------------------------------
         //  Creamos el esquema y declaramos la tabla sobre la que vamos a lanzar
         //  la query
@@ -138,12 +138,14 @@ public class Query02ReflectionTest extends Test {
         // Aplicamos el esquema que hemos creado a las lineas que hemos creado en
         // el paso anterior..
         JavaSchemaRDD userVisitsSchemaRDD = sqlCtx.applySchema(rowRDD, UserVisit.class);
-
         // Registramos la tabla rankings
         userVisitsSchemaRDD.registerTempTable("uservisits");
-
-        //  Lanzamos la query
-        JavaSchemaRDD results = sqlCtx.sql("SELECT SUBSTR(sourceIP, 1, 10), SUM(adRevenue) FROM uservisits GROUP BY SUBSTR(sourceIP, 1, 10)");
+        JavaSchemaRDD results = null;
+        // Repetimos la ejecucion de la query tantas veces como sea necesario.        
+        for (int i = 0; i < NUM_TRIALS; i++) {
+            //  Lanzamos la query
+            results = sqlCtx.sql("SELECT SUBSTR(sourceIP, 1, 10), SUM(adRevenue) FROM uservisits GROUP BY SUBSTR(sourceIP, 1, 10)");
+        }
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (true) {
@@ -176,7 +178,7 @@ public class Query02ReflectionTest extends Test {
     @Override
     public Boolean close() {
         // Paramos el contexto.
-        this.ctx.stop();
+        ctx.stop();
         // Indicamos que todo ha sucedido correctamente.
         return true;
     }

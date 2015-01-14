@@ -20,6 +20,7 @@ package es.devcircus.apache.spark.benchmark.sql.tests.query03;
 import es.devcircus.apache.spark.benchmark.sql.model.Ranking;
 import es.devcircus.apache.spark.benchmark.sql.model.UserVisit;
 import es.devcircus.apache.spark.benchmark.util.Test;
+import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.List;
@@ -64,9 +65,9 @@ public class Query03ReflectionTest extends Test {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
-    private SparkConf sparkConf;
-    private JavaSparkContext ctx;
-    private JavaSQLContext sqlCtx;
+    private static SparkConf sparkConf;
+    private static JavaSparkContext ctx;
+    private static JavaSQLContext sqlCtx;
 
     /**
      * Metodo que se encarga de la inicializacion del contexto Spark de
@@ -78,20 +79,23 @@ public class Query03ReflectionTest extends Test {
     @Override
     public Boolean prepare() {
         // Intanciamos el objeto de configuracion.
-        this.sparkConf = new SparkConf();
+        sparkConf = new SparkConf();
         // Indicamos la direccion al nodo master. El valor puede ser la ip del
         // nodo master, o "local" en el caso de que querramos ejecutar la app
         // en modo local.
-        this.sparkConf.setMaster("local");
+        sparkConf.setMaster(
+                ConfigurationManager.get("apache.benchmark.config.global.master"));
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
         // para su ejecucion.
-        this.sparkConf.setAppName("asb:java:sql:query01-reflection-test");
+        sparkConf.setAppName(
+                ConfigurationManager.get("apache.benchmark.config.sql.query.03.reflection.name"));
         // Seteamos el path a la instalacion de spark
-        this.sparkConf.setSparkHome("/opt/spark/bin/spark-submit");
+        sparkConf.setSparkHome(
+                ConfigurationManager.get("apache.benchmark.config.global.spark.home"));
         // Creamos un contexto de spark.
-        this.ctx = new JavaSparkContext(this.sparkConf);
+        ctx = new JavaSparkContext(sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
-        this.sqlCtx = new JavaSQLContext(this.ctx);
+        sqlCtx = new JavaSQLContext(ctx);
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
@@ -104,19 +108,16 @@ public class Query03ReflectionTest extends Test {
      */
     @Override
     public Boolean execute() {
-
         // Cargamos los datos desde el fichero de raking.
-        JavaRDD<String> rankingData = ctx.textFile("/media/adrian/data/apache_spark_data/text-deflate/tiny/rankings");
+        JavaRDD<String> rankingData = ctx.textFile(BASE_DATA_PATH + "/rankings");
         // Cargamos los datos desde el fichero de uservisits.
-        JavaRDD<String> uservisitsData = ctx.textFile("/media/adrian/data/apache_spark_data/text-deflate/tiny/uservisits");
-
+        JavaRDD<String> uservisitsData = ctx.textFile(BASE_DATA_PATH + "/uservisits");
         // Contamos los resultados recuperados.
         Long rankingCountResult = rankingData.count();
         Long uservisitsCountResult = uservisitsData.count();
         // Mostramos el resultado del conteo por pantalla.
         System.out.println("Resultado del conteo del RDD de Ranking......: " + rankingCountResult);
         System.out.println("Resultado del conteo del RDD de User Visits..: " + uservisitsCountResult);
-
         // ---------------------------------------------------------------------
         //  Mapeamos los datos leidos a objetos del modelo
         // ---------------------------------------------------------------------        
@@ -125,6 +126,7 @@ public class Query03ReflectionTest extends Test {
         // esquema concreto.
         JavaRDD<Ranking> rankingRowRDD = rankingData.map(
                 new Function<String, Ranking>() {
+                    @Override
                     public Ranking call(String record) throws Exception {
                         String[] fields = record.split(",");
                         Ranking ranking = new Ranking();
@@ -134,7 +136,6 @@ public class Query03ReflectionTest extends Test {
                         return ranking;
                     }
                 });
-
         JavaRDD<UserVisit> userVisitsRowRDD = uservisitsData.map(
                 new Function<String, UserVisit>() {
                     @Override
@@ -153,7 +154,6 @@ public class Query03ReflectionTest extends Test {
                         return userVisit;
                     }
                 });
-
         // ---------------------------------------------------------------------
         //  Creamos el esquema y declaramos la tabla sobre la que vamos a lanzar
         //  la query
@@ -162,44 +162,24 @@ public class Query03ReflectionTest extends Test {
         // el paso anterior..
         JavaSchemaRDD rankingSchemaRDD = sqlCtx.applySchema(rankingRowRDD, Ranking.class);
         JavaSchemaRDD userVisitsSchemaRDD = sqlCtx.applySchema(userVisitsRowRDD, UserVisit.class);
-
         // Registramos la tabla rankings
         rankingSchemaRDD.registerTempTable("rankings");
         userVisitsSchemaRDD.registerTempTable("uservisits");
-
-        //  Lanzamos la query
-//        JavaSchemaRDD results = sqlCtx.sql(
-//                "SELECT sourceIP, destURL, adRevenue, visitDate"
-//                + " FROM uservisits UV"
-////                + " WHERE UV.visitDate > CAST('1980-01-01 00:00:00.000' AS TIMESTAMP)"
-//                + " WHERE UV.visitDate > CAST('2002-01-01 00:00:00.000' AS TIMESTAMP)"
-////                + " AND UV.visitDate < CAST('2010-01-01 00:00:00.000' AS TIMESTAMP)");
-//                + " AND UV.visitDate < CAST('2002-12-01 00:00:00.000' AS TIMESTAMP)");
-//        JavaSchemaRDD results = sqlCtx.sql(
-//                "SELECT sourceIP, destURL, adRevenue, visitDate"
-//                + " FROM uservisits UV");
-//        JavaSchemaRDD results = sqlCtx.sql(
-//                "SELECT sourceIP, totalRevenue, avgPageRank"
-//                + " FROM"
-//                    + " (SELECT sourceIP,"
-//                        + " AVG(pageRank) as avgPageRank,"
-//                        + " SUM(adRevenue) as totalRevenue"
-//                    + " FROM Rankings AS R, UserVisits AS UV"
-//                    + " WHERE R.pageURL = UV.destinationURL"
-//                        + " AND UV.visitDate"
-//                        + " BETWEEN Date('1980-01-01') AND Date('1980-04-01')"
-//                    + " GROUP BY UV.sourceIP)"
-//                + " ORDER BY totalRevenue DESC LIMIT 1");
-        JavaSchemaRDD results = sqlCtx.sql(
-                "SELECT sourceIP, sum(adRevenue) as totalRevenue, avg(pageRank) as pageRank"
-                + " FROM rankings R JOIN"
-                + " (SELECT sourceIP, destURL, adRevenue"
-                + " FROM uservisits UV"
-                + " WHERE UV.visitDate > CAST('2002-01-01 00:00:00.000' AS TIMESTAMP)"
-                + " AND UV.visitDate < CAST('2010-01-01 00:00:00.000' AS TIMESTAMP))"
-                + " NUV ON (R.pageURL = NUV.destURL)"
-                + " GROUP BY sourceIP"
-                + " ORDER BY totalRevenue DESC LIMIT 1");
+        JavaSchemaRDD results = null;
+        // Repetimos la ejecucion de la query tantas veces como sea necesario.        
+        for (int i = 0; i < NUM_TRIALS; i++) {
+            //  Lanzamos la query
+            results = sqlCtx.sql(
+                    "SELECT sourceIP, sum(adRevenue) as totalRevenue, avg(pageRank) as pageRank"
+                    + " FROM rankings R JOIN"
+                    + " (SELECT sourceIP, destURL, adRevenue"
+                    + " FROM uservisits UV"
+                    + " WHERE UV.visitDate > CAST('2002-01-01 00:00:00.000' AS TIMESTAMP)"
+                    + " AND UV.visitDate < CAST('2010-01-01 00:00:00.000' AS TIMESTAMP))"
+                    + " NUV ON (R.pageURL = NUV.destURL)"
+                    + " GROUP BY sourceIP"
+                    + " ORDER BY totalRevenue DESC LIMIT 1");
+        }
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (true) {
@@ -232,7 +212,7 @@ public class Query03ReflectionTest extends Test {
     @Override
     public Boolean close() {
         // Paramos el contexto.
-        this.ctx.stop();
+        ctx.stop();
         // Indicamos que todo ha sucedido correctamente.
         return true;
     }

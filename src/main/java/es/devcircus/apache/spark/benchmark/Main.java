@@ -17,7 +17,8 @@
  */
 package es.devcircus.apache.spark.benchmark;
 
-import es.devcircus.apache.spark.benchmark.sql.tests.query02.Query02ProgrammaticallyTest;
+import es.devcircus.apache.spark.benchmark.sql.tests.query01.Query01ReflectionTest;
+import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.io.IOException;
 
 /**
@@ -43,12 +44,25 @@ public class Main {
      */
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        Query02ProgrammaticallyTest test = new Query02ProgrammaticallyTest();
+        ConfigurationManager.loadConfigure("benchmark.properties");
         
-        test.prepare();
-        test.execute();
-        test.commit();
-        test.close();
+        Query01ReflectionTest test01 = new Query01ReflectionTest();        
+        test01.prepare();
+        test01.execute();
+        test01.commit();
+        test01.close();
+        
+//        Query02ReflectionTest test02 = new Query02ReflectionTest();        
+//        test02.prepare();
+//        test02.execute();
+//        test02.commit();
+//        test02.close();
+        
+//        Query03ReflectionTest test03 = new Query03ReflectionTest();        
+//        test03.prepare();
+//        test03.execute();
+//        test03.commit();
+//        test03.close();
         
     }
 }

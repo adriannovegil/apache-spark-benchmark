@@ -17,13 +17,15 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.model;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Document {
+public class Document implements Serializable {
 
-    public static final String LINE_FIELD = "line";
+    public static final String LINE_KEY = "line";
     private String line;
 
     /**

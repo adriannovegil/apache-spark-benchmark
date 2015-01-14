@@ -19,6 +19,7 @@ package es.devcircus.apache.spark.benchmark.sql.tests.query01;
 
 import es.devcircus.apache.spark.benchmark.sql.model.Ranking;
 import es.devcircus.apache.spark.benchmark.util.Test;
+import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.spark.SparkConf;
@@ -63,9 +64,9 @@ import org.apache.spark.sql.api.java.StructType;
  */
 public class Query01ProgrammaticallyTest extends Test {
 
-    private SparkConf sparkConf;
-    private JavaSparkContext ctx;
-    private JavaSQLContext sqlCtx;
+    private static SparkConf sparkConf;
+    private static JavaSparkContext ctx;
+    private static JavaSQLContext sqlCtx;
 
     /**
      * Metodo que se encarga de la inicializacion del contexto Spark de
@@ -77,20 +78,23 @@ public class Query01ProgrammaticallyTest extends Test {
     @Override
     public Boolean prepare() {
         // Intanciamos el objeto de configuracion.
-        this.sparkConf = new SparkConf();
+        sparkConf = new SparkConf();
         // Indicamos la direccion al nodo master. El valor puede ser la ip del
         // nodo master, o "local" en el caso de que querramos ejecutar la app
         // en modo local.
-        this.sparkConf.setMaster("local");
+        sparkConf.setMaster(
+                ConfigurationManager.get("apache.benchmark.config.global.master"));
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
         // para su ejecucion.
-        this.sparkConf.setAppName("asb:java:sql:query01-programmatically-test");
+        sparkConf.setAppName(
+                ConfigurationManager.get("apache.benchmark.config.sql.query.01.programmatically.name"));
         // Seteamos el path a la instalacion de spark
-        this.sparkConf.setSparkHome("/opt/spark/bin/spark-submit");
+        sparkConf.setSparkHome(
+                ConfigurationManager.get("apache.benchmark.config.global.spark.home"));
         // Creamos un contexto de spark.
-        this.ctx = new JavaSparkContext(this.sparkConf);
+        ctx = new JavaSparkContext(sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
-        this.sqlCtx = new JavaSQLContext(this.ctx);
+        sqlCtx = new JavaSQLContext(ctx);
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
@@ -103,15 +107,12 @@ public class Query01ProgrammaticallyTest extends Test {
      */
     @Override
     public Boolean execute() {
-
         // Cargamos los datos desde el fichero de raking.
-        JavaRDD<String> rankingData = ctx.textFile("/media/adrian/data/apache_spark_data/text-deflate/tiny/rankings");
-
+        JavaRDD<String> rankingData = ctx.textFile(BASE_DATA_PATH + "/rankings");
         // Contamos los resultados recuperados.
         Long countResult = rankingData.count();
         // Mostramos el resultado del conteo por pantalla.
         System.out.println("Resultado del conteo del RDD...: " + countResult);
-
         // ---------------------------------------------------------------------
         //  Definimos el modelo de resultado de la consulta mediante programacion
         // ---------------------------------------------------------------------
@@ -119,12 +120,11 @@ public class Query01ProgrammaticallyTest extends Test {
         List<StructField> fields = new ArrayList<>();
         // Para cada uno de los atributos especificamos el nombre y el tipo de 
         // dato.
-        fields.add(DataType.createStructField(Ranking.PAGE_URL_FIELD, DataType.StringType, true));
-        fields.add(DataType.createStructField(Ranking.PAGE_RANK_FIELD, DataType.IntegerType, true));
-        fields.add(DataType.createStructField(Ranking.AVG_DURATION_FIELD, DataType.IntegerType, true));
+        fields.add(DataType.createStructField(Ranking.PAGE_URL_KEY, DataType.StringType, true));
+        fields.add(DataType.createStructField(Ranking.PAGE_RANK_KEY, DataType.IntegerType, true));
+        fields.add(DataType.createStructField(Ranking.AVG_DURATION_KEY, DataType.IntegerType, true));
         // Cremos el esquema de datos a partir de los campos creados.
         StructType schema = DataType.createStructType(fields);
-
         // Convertimos las lineas que creamos como String a partir del fichero de
         // texto a instancias de filas. En este punto aun no podemos mapear al
         // esquema concreto.
@@ -139,7 +139,6 @@ public class Query01ProgrammaticallyTest extends Test {
                                 new Integer(fields[2]));
                     }
                 });
-
         // ---------------------------------------------------------------------
         //  Creamos el esquema y declaramos la tabla sobre la que vamos a lanzar
         //  la query
@@ -147,13 +146,14 @@ public class Query01ProgrammaticallyTest extends Test {
         // Aplicamos el esquema que hemos creado a las lineas que hemos creado en
         // el paso anterior..
         JavaSchemaRDD rankingSchemaRDD = sqlCtx.applySchema(rowRDD, schema);
-
         // Registramos la tabla rankings
         rankingSchemaRDD.registerTempTable("rankings");
-        
-        //  Lanzamos la query        
-        JavaSchemaRDD results = sqlCtx.sql("SELECT pageURL, pageRank FROM rankings WHERE pageRank > 10");
-        
+        JavaSchemaRDD results = null;
+        // Repetimos la ejecucion de la query tantas veces como sea necesario.        
+        for (int i = 0; i < NUM_TRIALS; i++) {
+            //  Lanzamos la query        
+            results = sqlCtx.sql("SELECT pageURL, pageRank FROM rankings WHERE pageRank > 10");
+        }
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (true) {
@@ -186,7 +186,7 @@ public class Query01ProgrammaticallyTest extends Test {
     @Override
     public Boolean close() {
         // Paramos el contexto.
-        this.ctx.stop();
+        ctx.stop();
         // Indicamos que todo ha sucedido correctamente.
         return true;
     }
