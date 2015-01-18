@@ -18,7 +18,7 @@
 package es.devcircus.apache.spark.benchmark.sql.tests.query01;
 
 import es.devcircus.apache.spark.benchmark.sql.model.Ranking;
-import es.devcircus.apache.spark.benchmark.util.Test;
+import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +62,7 @@ import org.apache.spark.sql.api.java.StructType;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query01ProgrammaticallyTest extends Test {
+public class Query01ProgrammaticallyTest extends SQLTest {
 
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
@@ -76,7 +76,7 @@ public class Query01ProgrammaticallyTest extends Test {
      * contrario.
      */
     @Override
-    public Boolean prepare() {
+    public Boolean config() {
         // Intanciamos el objeto de configuracion.
         sparkConf = new SparkConf();
         // Indicamos la direccion al nodo master. El valor puede ser la ip del
@@ -85,9 +85,9 @@ public class Query01ProgrammaticallyTest extends Test {
         sparkConf.setMaster(
                 ConfigurationManager.get("apache.benchmark.config.global.master"));
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
-        // para su ejecucion.
-        sparkConf.setAppName(
-                ConfigurationManager.get("apache.benchmark.config.sql.query.01.programmatically.name"));
+        // para su ejecucion y en el proyecto para los resultados.
+        setName(ConfigurationManager.get("apache.benchmark.config.sql.query.01.programmatically.name"));
+        sparkConf.setAppName(getName());
         // Seteamos el path a la instalacion de spark
         sparkConf.setSparkHome(
                 ConfigurationManager.get("apache.benchmark.config.global.spark.home"));
@@ -100,19 +100,22 @@ public class Query01ProgrammaticallyTest extends Test {
     }
 
     /**
-     * Metodo que ejecuta el core de la prueba que estamos realizando.
+     * Metodo que se encarga de ejecutar todas las acciones necesarias para
+     * preparar el contexto del benchmark.
      *
      * @return True si el metodo se ha ejecutado correctamente, false en caso
      * contrario.
      */
     @Override
-    public Boolean execute() {
+    public Boolean prepare() {
         // Cargamos los datos desde el fichero de raking.
         JavaRDD<String> rankingData = ctx.textFile(BASE_DATA_PATH + "/rankings");
-        // Contamos los resultados recuperados.
-        Long countResult = rankingData.count();
-        // Mostramos el resultado del conteo por pantalla.
-        System.out.println("Resultado del conteo del RDD...: " + countResult);
+        if (VERBOSE_MODE) {
+            // Contamos los resultados recuperados.
+            Long countResult = rankingData.count();
+            // Mostramos el resultado del conteo por pantalla.
+            System.out.println("Resultado del conteo del RDD...: " + countResult);
+        }
         // ---------------------------------------------------------------------
         //  Definimos el modelo de resultado de la consulta mediante programacion
         // ---------------------------------------------------------------------
@@ -148,6 +151,18 @@ public class Query01ProgrammaticallyTest extends Test {
         JavaSchemaRDD rankingSchemaRDD = sqlCtx.applySchema(rowRDD, schema);
         // Registramos la tabla rankings
         rankingSchemaRDD.registerTempTable("rankings");
+        // Retornamos true indicando que el metodo ha terminado correctamente
+        return true;
+    }
+
+    /**
+     * Metodo que ejecuta el core de la prueba que estamos realizando.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean execute() {
         JavaSchemaRDD results = null;
         // Repetimos la ejecucion de la query tantas veces como sea necesario.        
         for (int i = 0; i < NUM_TRIALS; i++) {
@@ -156,7 +171,7 @@ public class Query01ProgrammaticallyTest extends Test {
         }
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
-        if (true) {
+        if (VERBOSE_MODE) {
             this.debug(results);
         }
         // Retornamos true indicando que el metodo ha terminado correctamente

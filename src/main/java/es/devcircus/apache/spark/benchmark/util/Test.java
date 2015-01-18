@@ -22,29 +22,54 @@ import java.io.Serializable;
 
 public abstract class Test implements Serializable {
 
-    protected static String BASE_DATA_PATH = null;
+    private static String name = null;
     protected static Boolean VERBOSE_MODE = null;
     protected static Integer NUM_TRIALS = null;
 
     static {
-        // Directorio base de los ficheros del benchmark.
-        // Lo componemos a partir del directorio base configurado en el fichero
-        // de configuracion del benchmark, el tipo de compresion y el tamanho del
-        // experimento.
-        BASE_DATA_PATH = ConfigurationManager.get("apache.benchmark.config.sql.global.data.base.dir") + "/"
-                + ConfigurationManager.get("apache.benchmark.config.sql.global.data.compression.type") + "/"
-                + ConfigurationManager.get("apache.benchmark.config.sql.global.data.size");
         // Modo verbose.
         VERBOSE_MODE = (ConfigurationManager.get("apache.benchmark.config.global.verbose").equals("1"));
         // Numero de repeticiones de los experimentos
         NUM_TRIALS = new Integer(ConfigurationManager.get("apache.benchmark.config.global.num.trials"));
     }
 
-    public abstract Boolean prepare();
+    /**
+     *
+     * @return
+     */
+    public String getName() {
+        return name;
+    }
 
+    /**
+     *
+     * @param name
+     */
+    public void setName(String name) {
+        Test.name = name;
+    }
+
+    /**
+     *
+     * @return
+     */
+    public abstract Boolean config();
+
+    /**
+     *
+     * @return
+     */
     public abstract Boolean execute();
 
+    /**
+     *
+     * @return
+     */
     public abstract Boolean commit();
 
+    /**
+     *
+     * @return
+     */
     public abstract Boolean close();
 }

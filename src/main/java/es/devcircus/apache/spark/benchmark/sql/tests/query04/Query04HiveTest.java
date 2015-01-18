@@ -17,7 +17,7 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.tests.query04;
 
-import es.devcircus.apache.spark.benchmark.util.Test;
+import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.List;
 import org.apache.spark.SparkConf;
@@ -58,7 +58,7 @@ import org.apache.spark.sql.hive.api.java.JavaHiveContext;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query04HiveTest extends Test {
+public class Query04HiveTest extends SQLTest {
 
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
@@ -72,7 +72,7 @@ public class Query04HiveTest extends Test {
      * contrario.
      */
     @Override
-    public Boolean prepare() {
+    public Boolean config() {
         // Intanciamos el objeto de configuracion.
         sparkConf = new SparkConf();
         // Indicamos la direccion al nodo master. El valor puede ser la ip del
@@ -81,9 +81,9 @@ public class Query04HiveTest extends Test {
         sparkConf.setMaster(
                 ConfigurationManager.get("apache.benchmark.config.global.master"));
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
-        // para su ejecucion.
-        sparkConf.setAppName(
-                ConfigurationManager.get("apache.benchmark.config.sql.query.04.hive.name"));
+        // para su ejecucion y en el proyecto para los resultados.
+        setName(ConfigurationManager.get("apache.benchmark.config.sql.query.04.hive.name"));
+        sparkConf.setAppName(getName());
         // Seteamos el path a la instalacion de spark
         sparkConf.setSparkHome(
                 ConfigurationManager.get("apache.benchmark.config.global.spark.home"));
@@ -96,13 +96,26 @@ public class Query04HiveTest extends Test {
     }
 
     /**
+     * Metodo que se encarga de ejecutar todas las acciones necesarias para
+     * preparar el contexto del benchmark.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean prepare() {
+        // Retornamos true indicando que el metodo ha terminado correctamente
+        return true;
+    }
+
+    /**
      * Metodo que ejecuta el core de la prueba que estamos realizando.
      *
      * @return True si el metodo se ha ejecutado correctamente, false en caso
      * contrario.
      */
     @Override
-    public Boolean execute() {        
+    public Boolean execute() {
         // Repetimos la ejecucion de la query tantas veces como sea necesario.        
         for (int i = 0; i < NUM_TRIALS; i++) {
             // Si existiese previamente la tabla, nos la cargamos.
@@ -116,12 +129,12 @@ public class Query04HiveTest extends Test {
                     + " USING 'python /tmp/url_count.py' as (sourcePage,"
                     + " destPage, count) from documents");
         }
-        // Lanzamos una query para recuperar los datos procesados y verificar
-        // el resultado.        
-        JavaSchemaRDD results = sqlCtx.hql("SELECT * FROM url_counts_partial");
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
-        if (true) {
+        if (VERBOSE_MODE) {
+            // Lanzamos una query para recuperar los datos procesados y verificar
+            // el resultado.        
+            JavaSchemaRDD results = sqlCtx.hql("SELECT * FROM url_counts_partial");
             this.debug(results);
         }
         // Retornamos true indicando que el metodo ha terminado correctamente

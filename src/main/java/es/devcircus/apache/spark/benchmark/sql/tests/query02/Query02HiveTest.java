@@ -17,7 +17,7 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.tests.query02;
 
-import es.devcircus.apache.spark.benchmark.util.Test;
+import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.List;
 import org.apache.spark.SparkConf;
@@ -50,7 +50,7 @@ import org.apache.spark.sql.hive.api.java.JavaHiveContext;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query02HiveTest extends Test {
+public class Query02HiveTest extends SQLTest {
 
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
@@ -64,7 +64,7 @@ public class Query02HiveTest extends Test {
      * contrario.
      */
     @Override
-    public Boolean prepare() {
+    public Boolean config() {
         // Intanciamos el objeto de configuracion.
         sparkConf = new SparkConf();
         // Indicamos la direccion al nodo master. El valor puede ser la ip del
@@ -73,9 +73,9 @@ public class Query02HiveTest extends Test {
         sparkConf.setMaster(
                 ConfigurationManager.get("apache.benchmark.config.global.master"));
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
-        // para su ejecucion.
-        sparkConf.setAppName(
-                ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.name"));
+        // para su ejecucion y en el proyecto para los resultados.
+        setName(ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.name"));
+        sparkConf.setAppName(getName());
         // Seteamos el path a la instalacion de spark
         sparkConf.setSparkHome(
                 ConfigurationManager.get("apache.benchmark.config.global.spark.home"));
@@ -88,13 +88,14 @@ public class Query02HiveTest extends Test {
     }
 
     /**
-     * Metodo que ejecuta el core de la prueba que estamos realizando.
+     * Metodo que se encarga de ejecutar todas las acciones necesarias para
+     * preparar el contexto del benchmark.
      *
      * @return True si el metodo se ha ejecutado correctamente, false en caso
      * contrario.
      */
     @Override
-    public Boolean execute() {
+    public Boolean prepare() {
         // Si existiese previamente la tabla, nos la cargamos.
         sqlCtx.hql("DROP TABLE IF EXISTS uservisits");
         // Creamos la tabla y cargamo slos datos.
@@ -103,6 +104,18 @@ public class Query02HiveTest extends Test {
                 + " languageCode STRING,searchWord STRING,duration INT )"
                 + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
                 + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/uservisits'");
+        // Retornamos true indicando que el metodo ha terminado correctamente
+        return true;
+    }
+    
+    /**
+     * Metodo que ejecuta el core de la prueba que estamos realizando.
+     *
+     * @return True si el metodo se ha ejecutado correctamente, false en caso
+     * contrario.
+     */
+    @Override
+    public Boolean execute() {
         JavaSchemaRDD results = null;
         // Repetimos la ejecucion de la query tantas veces como sea necesario.        
         for (int i = 0; i < NUM_TRIALS; i++) {
@@ -111,7 +124,7 @@ public class Query02HiveTest extends Test {
         }
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
-        if (true) {
+        if (VERBOSE_MODE) {
             this.debug(results);
         }
         // Retornamos true indicando que el metodo ha terminado correctamente
