@@ -22,7 +22,8 @@ import java.io.Serializable;
 
 public abstract class Test implements Serializable {
 
-    private static String name = null;
+    private String name;
+    private Long runTime;
     protected static Boolean VERBOSE_MODE = null;
     protected static Integer NUM_TRIALS = null;
 
@@ -34,19 +35,39 @@ public abstract class Test implements Serializable {
     }
 
     /**
+     * Metodo que nos permite recuperar el valor del atributo name.
      *
-     * @return
+     * @return Valor del atributo name.
      */
     public String getName() {
         return name;
     }
 
     /**
+     * Metodo que nos permite setear el valor del atributo name.
      *
-     * @param name
+     * @param name Nuevo valor del atributo name.
      */
     public void setName(String name) {
-        Test.name = name;
+        this.name = name;
+    }
+
+    /**
+     * Metodo que nos permite recuperar el valor del atributo runTime.
+     *
+     * @return Valor del atributo runTime.
+     */
+    public Long getRunTime() {
+        return runTime;
+    }
+
+    /**
+     * Metodo que nos permite setear el valor del atributo runTime.
+     *
+     * @param runTime Nueva valor del atributo runTime.
+     */
+    public void setRunTime(Long runTime) {
+        this.runTime = runTime;
     }
 
     /**

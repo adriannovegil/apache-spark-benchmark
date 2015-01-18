@@ -19,7 +19,6 @@ package es.devcircus.apache.spark.benchmark.sql.tests.query04;
 
 import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
-import java.io.File;
 import java.util.List;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -122,8 +121,13 @@ public class Query04HiveTest extends SQLTest {
      */
     @Override
     public Boolean execute() {
+        Long startTime;
+        Long endTime;
+        Long tmpRunTime = (long) 0;
         // Repetimos la ejecucion de la query tantas veces como sea necesario.        
         for (int i = 0; i < NUM_TRIALS; i++) {
+            // Medimos el timepo de inicio del experimento.
+            startTime = System.currentTimeMillis();
             // Si existiese previamente la tabla, nos la cargamos.
             sqlCtx.hql("DROP TABLE IF EXISTS documents");
             // Creamos la tabla y cargamo slos datos.
@@ -134,7 +138,16 @@ public class Query04HiveTest extends SQLTest {
                     + " SELECT TRANSFORM (line)"                    
                     + " USING 'python " + urlCountPythonScriptPath + "' as (sourcePage,"
                     + " destPage, count) from documents");
+            // Medimos el tiempo de finalizacion del experimento.
+            endTime = System.currentTimeMillis();
+            // Sumamos el tiempo de la iteracion actual
+            tmpRunTime += endTime - startTime;
         }
+        // Calculamos el runTime del experimento actual dividiendo la suma de los
+        // tiempos parciales entre el numero de iteraciones.
+        tmpRunTime = tmpRunTime / NUM_TRIALS;
+        // Seteamos el resultado del tiempo calculado.
+        setRunTime(tmpRunTime);
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {

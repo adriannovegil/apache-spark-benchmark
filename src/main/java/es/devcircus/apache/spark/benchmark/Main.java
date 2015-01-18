@@ -50,7 +50,7 @@ public class Main {
      */
     private static String persistenceUnitName = "prueba";
 
-    private static Map<String, Boolean> sqlBenchmarResults = new HashMap<String, Boolean>();
+    private static Map<String, Long> sqlBenchmarResults = new HashMap<String, Long>();
 
     /**
      *
@@ -78,7 +78,7 @@ public class Main {
             Query01HiveTest query01HiveTest = new Query01HiveTest();
             result = BenchmarkExecutor.process(query01HiveTest);
             if (result) {
-                sqlBenchmarResults.put(query01HiveTest.getName(), result);
+                sqlBenchmarResults.put(query01HiveTest.getName(), query01HiveTest.getRunTime());
             }
         }
 
@@ -86,7 +86,7 @@ public class Main {
             Query01ProgrammaticallyTest query01ProgrammaticallyTest = new Query01ProgrammaticallyTest();
             result = BenchmarkExecutor.process(query01ProgrammaticallyTest);
             if (result) {
-                sqlBenchmarResults.put(query01ProgrammaticallyTest.getName(), result);
+                sqlBenchmarResults.put(query01ProgrammaticallyTest.getName(), query01ProgrammaticallyTest.getRunTime());
             }
         }
 
@@ -94,7 +94,7 @@ public class Main {
             Query01ReflectionTest query01ReflectionTest1 = new Query01ReflectionTest();
             result = BenchmarkExecutor.process(query01ReflectionTest1);
             if (result) {
-                sqlBenchmarResults.put(query01ReflectionTest1.getName(), result);
+                sqlBenchmarResults.put(query01ReflectionTest1.getName(), query01ReflectionTest1.getRunTime());
             }
         }
 
@@ -102,7 +102,7 @@ public class Main {
             Query02HiveTest query02HiveTest = new Query02HiveTest();
             result = BenchmarkExecutor.process(query02HiveTest);
             if (result) {
-                sqlBenchmarResults.put(query02HiveTest.getName(), result);
+                sqlBenchmarResults.put(query02HiveTest.getName(), query02HiveTest.getRunTime());
             }
         }
 
@@ -110,7 +110,7 @@ public class Main {
             Query02ProgrammaticallyTest query02ProgrammaticallyTest = new Query02ProgrammaticallyTest();
             result = BenchmarkExecutor.process(query02ProgrammaticallyTest);
             if (result) {
-                sqlBenchmarResults.put(query02ProgrammaticallyTest.getName(), result);
+                sqlBenchmarResults.put(query02ProgrammaticallyTest.getName(), query02ProgrammaticallyTest.getRunTime());
             }
         }
 
@@ -118,7 +118,7 @@ public class Main {
             Query02ReflectionTest query02ReflectionTest = new Query02ReflectionTest();
             result = BenchmarkExecutor.process(query02ReflectionTest);
             if (result) {
-                sqlBenchmarResults.put(query02ReflectionTest.getName(), result);
+                sqlBenchmarResults.put(query02ReflectionTest.getName(), query02ReflectionTest.getRunTime());
             }
         }
 
@@ -126,7 +126,7 @@ public class Main {
             Query03HiveTest query03HiveTest = new Query03HiveTest();
             result = BenchmarkExecutor.process(query03HiveTest);
             if (result) {
-                sqlBenchmarResults.put(query03HiveTest.getName(), result);
+                sqlBenchmarResults.put(query03HiveTest.getName(), query03HiveTest.getRunTime());
             }
         }
 
@@ -134,7 +134,7 @@ public class Main {
             Query03ProgrammaticallyTest query03ProgrammaticallyTest = new Query03ProgrammaticallyTest();
             result = BenchmarkExecutor.process(query03ProgrammaticallyTest);
             if (result) {
-                sqlBenchmarResults.put(query03ProgrammaticallyTest.getName(), result);
+                sqlBenchmarResults.put(query03ProgrammaticallyTest.getName(), query03ProgrammaticallyTest.getRunTime());
             }
         }
 
@@ -142,7 +142,7 @@ public class Main {
             Query03ReflectionTest query03ReflectionTest = new Query03ReflectionTest();
             result = BenchmarkExecutor.process(query03ReflectionTest);
             if (result) {
-                sqlBenchmarResults.put(query03ReflectionTest.getName(), result);
+                sqlBenchmarResults.put(query03ReflectionTest.getName(), query03ReflectionTest.getRunTime());
             }
         }
 
@@ -150,7 +150,7 @@ public class Main {
             Query04HiveTest query04HiveTest = new Query04HiveTest();
             result = BenchmarkExecutor.process(query04HiveTest);
             if (result) {
-                sqlBenchmarResults.put(query04HiveTest.getName(), result);
+                sqlBenchmarResults.put(query04HiveTest.getName(), query04HiveTest.getRunTime());
             }
         }
 
@@ -162,12 +162,16 @@ public class Main {
      */
     private static void printResults() {
 
+        System.out.println();
         System.out.println("----------------------------------------------------------");
         System.out.println(" Resultado de ejecución de las pruebas SQL                ");
         System.out.println("----------------------------------------------------------");
+        System.out.println();
 
         for (String key : sqlBenchmarResults.keySet()) {
-            System.out.println("  - Test..: " + key + " - Resultato..: " + sqlBenchmarResults.get(key));
+            System.out.println("  - Benchmark..: " + key + " - Tiempo..: " + sqlBenchmarResults.get(key));
         }
+        
+        System.out.println("");
     }
 }
