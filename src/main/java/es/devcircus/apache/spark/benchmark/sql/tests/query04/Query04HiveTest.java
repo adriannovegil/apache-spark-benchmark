@@ -19,6 +19,7 @@ package es.devcircus.apache.spark.benchmark.sql.tests.query04;
 
 import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
+import java.io.File;
 import java.util.List;
 import org.apache.spark.SparkConf;
 import org.apache.spark.api.java.JavaSparkContext;
@@ -63,6 +64,7 @@ public class Query04HiveTest extends SQLTest {
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
     private static JavaHiveContext sqlCtx;
+    private static String urlCountPythonScriptPath;
 
     /**
      * Metodo que se encarga de la inicializacion del contexto Spark de
@@ -91,6 +93,10 @@ public class Query04HiveTest extends SQLTest {
         ctx = new JavaSparkContext(sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
         sqlCtx = new JavaHiveContext(ctx);
+        // Recuperamos el path absoluto hasta el script auxiliar que usamos para
+        // procesar los datos.        
+        urlCountPythonScriptPath = 
+               ConfigurationManager.get("apache.benchmark.config.sql.query.04.hive.url.count.python.script.path");
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
@@ -125,8 +131,8 @@ public class Query04HiveTest extends SQLTest {
                     + "STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/crawl'");
             sqlCtx.hql("DROP TABLE IF EXISTS url_counts_partial");
             sqlCtx.hql("CREATE TABLE url_counts_partial AS"
-                    + " SELECT TRANSFORM (line)"
-                    + " USING 'python /tmp/url_count.py' as (sourcePage,"
+                    + " SELECT TRANSFORM (line)"                    
+                    + " USING 'python " + urlCountPythonScriptPath + "' as (sourcePage,"
                     + " destPage, count) from documents");
         }
         // Si esta activo el modo de debug llamamos al metodo que muestra los 

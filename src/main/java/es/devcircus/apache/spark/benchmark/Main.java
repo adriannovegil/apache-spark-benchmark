@@ -31,7 +31,6 @@ import es.devcircus.apache.spark.benchmark.util.BenchmarkExecutor;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -73,66 +72,86 @@ public class Main {
     private static void executeSqlBenchmarks() {
         // Variable auxiliar con la que gestionamos los resultados de los benchmark.
         Boolean result;
-        
+
         // Bloque de ejecucion de los benchmark.
-//        Query01HiveTest query01HiveTest = new Query01HiveTest();
-//        result = BenchmarkExecutor.process(query01HiveTest);
-//        if (result) {
-//            sqlBenchmarResults.put(query01HiveTest.getName(), result);
-//        }
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.01.programmatically.active").equals("1")) {
+            Query01HiveTest query01HiveTest = new Query01HiveTest();
+            result = BenchmarkExecutor.process(query01HiveTest);
+            if (result) {
+                sqlBenchmarResults.put(query01HiveTest.getName(), result);
+            }
+        }
 
-//        Query01ProgrammaticallyTest query01ProgrammaticallyTest = new Query01ProgrammaticallyTest();
-//        result = BenchmarkExecutor.process(query01ProgrammaticallyTest);
-//        if (result) {
-//            sqlBenchmarResults.put(query01ProgrammaticallyTest.getName(), result);
-//        }
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.01.reflection.active").equals("1")) {
+            Query01ProgrammaticallyTest query01ProgrammaticallyTest = new Query01ProgrammaticallyTest();
+            result = BenchmarkExecutor.process(query01ProgrammaticallyTest);
+            if (result) {
+                sqlBenchmarResults.put(query01ProgrammaticallyTest.getName(), result);
+            }
+        }
 
-//        Query01ReflectionTest query01ReflectionTest1 = new Query01ReflectionTest();
-//        result = BenchmarkExecutor.process(query01ReflectionTest1);
-//        if (result) {
-//            sqlBenchmarResults.put(query01ReflectionTest1.getName(), result);
-//        }
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.01.hive.active").equals("1")) {
+            Query01ReflectionTest query01ReflectionTest1 = new Query01ReflectionTest();
+            result = BenchmarkExecutor.process(query01ReflectionTest1);
+            if (result) {
+                sqlBenchmarResults.put(query01ReflectionTest1.getName(), result);
+            }
+        }
 
-//        Query02HiveTest query02HiveTest = new Query02HiveTest();
-//        result = BenchmarkExecutor.process(query02HiveTest);
-//        if (result) {
-//            sqlBenchmarResults.put(query02HiveTest.getName(), result);
-//        }
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.02.programmatically.active").equals("1")) {
+            Query02HiveTest query02HiveTest = new Query02HiveTest();
+            result = BenchmarkExecutor.process(query02HiveTest);
+            if (result) {
+                sqlBenchmarResults.put(query02HiveTest.getName(), result);
+            }
+        }
 
-//        Query02ProgrammaticallyTest query02ProgrammaticallyTest = new Query02ProgrammaticallyTest();
-//        result = BenchmarkExecutor.process(query02ProgrammaticallyTest);
-//        if (result) {
-//            sqlBenchmarResults.put(query02ProgrammaticallyTest.getName(), result);
-//        }
-        
-//        Query02ReflectionTest query02ReflectionTest = new Query02ReflectionTest();
-//        result = BenchmarkExecutor.process(query02ReflectionTest);
-//        if (result) {
-//            sqlBenchmarResults.put(query02ReflectionTest.getName(), result);
-//        }
-                                
-//        Query03HiveTest query03HiveTest = new Query03HiveTest();
-//        result = BenchmarkExecutor.process(query03HiveTest);
-//        if (result) {
-//            sqlBenchmarResults.put(query03HiveTest.getName(), result);
-//        }
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.02.reflection.active").equals("1")) {
+            Query02ProgrammaticallyTest query02ProgrammaticallyTest = new Query02ProgrammaticallyTest();
+            result = BenchmarkExecutor.process(query02ProgrammaticallyTest);
+            if (result) {
+                sqlBenchmarResults.put(query02ProgrammaticallyTest.getName(), result);
+            }
+        }
 
-//        Query03ProgrammaticallyTest query03ProgrammaticallyTest = new Query03ProgrammaticallyTest();
-//        result = BenchmarkExecutor.process(query03ProgrammaticallyTest);
-//        if (result) {
-//            sqlBenchmarResults.put(query03ProgrammaticallyTest.getName(), result);
-//        }
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.active").equals("1")) {
+            Query02ReflectionTest query02ReflectionTest = new Query02ReflectionTest();
+            result = BenchmarkExecutor.process(query02ReflectionTest);
+            if (result) {
+                sqlBenchmarResults.put(query02ReflectionTest.getName(), result);
+            }
+        }
 
-//        Query03ReflectionTest query03ReflectionTest = new Query03ReflectionTest();
-//        result = BenchmarkExecutor.process(query03ReflectionTest);
-//        if (result) {
-//            sqlBenchmarResults.put(query03ReflectionTest.getName(), result);
-//        }
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.03.programmatically.active").equals("1")) {
+            Query03HiveTest query03HiveTest = new Query03HiveTest();
+            result = BenchmarkExecutor.process(query03HiveTest);
+            if (result) {
+                sqlBenchmarResults.put(query03HiveTest.getName(), result);
+            }
+        }
 
-        Query04HiveTest query04HiveTest = new Query04HiveTest();
-        result = BenchmarkExecutor.process(query04HiveTest);
-        if (result) {
-            sqlBenchmarResults.put(query04HiveTest.getName(), result);
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.03.reflection.active").equals("1")) {
+            Query03ProgrammaticallyTest query03ProgrammaticallyTest = new Query03ProgrammaticallyTest();
+            result = BenchmarkExecutor.process(query03ProgrammaticallyTest);
+            if (result) {
+                sqlBenchmarResults.put(query03ProgrammaticallyTest.getName(), result);
+            }
+        }
+
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.03.hive.active").equals("1")) {
+            Query03ReflectionTest query03ReflectionTest = new Query03ReflectionTest();
+            result = BenchmarkExecutor.process(query03ReflectionTest);
+            if (result) {
+                sqlBenchmarResults.put(query03ReflectionTest.getName(), result);
+            }
+        }
+
+        if (ConfigurationManager.get("apache.benchmark.config.sql.query.04.hive.active").equals("1")) {
+            Query04HiveTest query04HiveTest = new Query04HiveTest();
+            result = BenchmarkExecutor.process(query04HiveTest);
+            if (result) {
+                sqlBenchmarResults.put(query04HiveTest.getName(), result);
+            }
         }
 
     }
