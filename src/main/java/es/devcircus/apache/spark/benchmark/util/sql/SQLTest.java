@@ -15,10 +15,15 @@
  * this program; see the file COPYING. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package es.devcircus.apache.spark.benchmark.util;
+package es.devcircus.apache.spark.benchmark.util.sql;
 
+import es.devcircus.apache.spark.benchmark.util.Test;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 
+/**
+ *
+ * @author Adrian Novegil <adrian.novegil@gmail.com>
+ */
 public abstract class SQLTest extends Test {
 
     protected static String BASE_DATA_PATH = null;

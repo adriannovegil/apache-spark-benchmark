@@ -17,7 +17,6 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.tests.query01;
 
-import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.List;
 import org.apache.spark.SparkConf;
@@ -56,7 +55,7 @@ import org.apache.spark.sql.hive.api.java.JavaHiveContext;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query01HiveTest extends SQLTest {
+public class Query01HiveTest extends Query01Test {
 
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
@@ -103,11 +102,9 @@ public class Query01HiveTest extends SQLTest {
     @Override
     public Boolean prepare() {
         // Si existiese previamente la tabla, nos la cargamos.
-        sqlCtx.hql("DROP TABLE IF EXISTS rankings");
+        sqlCtx.hql(this.getDropRankingsTableQuery());
         // Creamos la tabla y cargamo slos datos.
-        sqlCtx.hql(" CREATE TABLE IF NOT EXISTS rankings (pageURL STRING, pageRank INT,"
-                + " avgDuration INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
-                + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/rankings'");
+        sqlCtx.hql(this.getCreateRankingsTableQuery());
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
@@ -129,7 +126,7 @@ public class Query01HiveTest extends SQLTest {
             // Medimos el timepo de inicio del experimento.
             startTime = System.currentTimeMillis();
             // Lanzamos las query sobre los datos.
-            results = sqlCtx.hql("SELECT pageURL, pageRank FROM rankings WHERE pageRank > 10");
+            results = sqlCtx.hql(this.getPageRankValueSelectQuery(10));
             // Medimos el tiempo de finalizacion del experimento.
             endTime = System.currentTimeMillis();
             // Sumamos el tiempo de la iteracion actual

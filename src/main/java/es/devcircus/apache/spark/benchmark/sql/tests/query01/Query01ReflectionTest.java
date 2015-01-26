@@ -18,7 +18,6 @@
 package es.devcircus.apache.spark.benchmark.sql.tests.query01;
 
 import es.devcircus.apache.spark.benchmark.sql.model.Ranking;
-import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.List;
 import org.apache.spark.SparkConf;
@@ -58,7 +57,7 @@ import org.apache.spark.sql.api.java.Row;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query01ReflectionTest extends SQLTest {
+public class Query01ReflectionTest extends Query01Test {
 
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
@@ -111,10 +110,7 @@ public class Query01ReflectionTest extends SQLTest {
             Long countResult = rankingData.count();
             // Mostramos el resultado del conteo por pantalla.
             System.out.println("Resultado del conteo del RDD...: " + countResult);
-        }
-        // ---------------------------------------------------------------------
-        //  Mapeamos los datos leidos a objetos del modelo
-        // ---------------------------------------------------------------------        
+        }    
         // Convertimos las lineas que creamos como String a partir del fichero de
         // texto a instancias de modelo. En este punto aun no podemos mapear al
         // esquema concreto.
@@ -130,10 +126,6 @@ public class Query01ReflectionTest extends SQLTest {
                         return ranking;
                     }
                 });
-        // ---------------------------------------------------------------------
-        //  Creamos el esquema y declaramos la tabla sobre la que vamos a lanzar
-        //  la query
-        // ---------------------------------------------------------------------
         // Aplicamos el esquema que hemos creado a las lineas que hemos creado en
         // el paso anterior..
         JavaSchemaRDD rankingSchemaRDD = sqlCtx.applySchema(rowRDD, Ranking.class);
@@ -160,7 +152,7 @@ public class Query01ReflectionTest extends SQLTest {
             // Medimos el timepo de inicio del experimento.
             startTime = System.currentTimeMillis();
             //  Lanzamos la query
-            results = sqlCtx.sql("SELECT pageURL, pageRank FROM rankings WHERE pageRank > 10");
+            results = sqlCtx.sql(this.getPageRankValueSelectQuery(10));
             // Medimos el tiempo de finalizacion del experimento.
             endTime = System.currentTimeMillis();
             // Sumamos el tiempo de la iteracion actual

@@ -20,6 +20,10 @@ package es.devcircus.apache.spark.benchmark.util;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.io.Serializable;
 
+/**
+ *
+ * @author Adrian Novegil <adrian.novegil@gmail.com>
+ */
 public abstract class Test implements Serializable {
 
     private String name;

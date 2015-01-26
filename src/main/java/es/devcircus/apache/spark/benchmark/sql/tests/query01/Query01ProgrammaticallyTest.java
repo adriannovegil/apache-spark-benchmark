@@ -18,7 +18,6 @@
 package es.devcircus.apache.spark.benchmark.sql.tests.query01;
 
 import es.devcircus.apache.spark.benchmark.sql.model.Ranking;
-import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +61,7 @@ import org.apache.spark.sql.api.java.StructType;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query01ProgrammaticallyTest extends SQLTest {
+public class Query01ProgrammaticallyTest extends Query01Test {
 
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
@@ -116,9 +115,6 @@ public class Query01ProgrammaticallyTest extends SQLTest {
             // Mostramos el resultado del conteo por pantalla.
             System.out.println("Resultado del conteo del RDD...: " + countResult);
         }
-        // ---------------------------------------------------------------------
-        //  Definimos el modelo de resultado de la consulta mediante programacion
-        // ---------------------------------------------------------------------
         // Definimos la lista de atributos.
         List<StructField> fields = new ArrayList<>();
         // Para cada uno de los atributos especificamos el nombre y el tipo de 
@@ -142,10 +138,6 @@ public class Query01ProgrammaticallyTest extends SQLTest {
                                 new Integer(fields[2]));
                     }
                 });
-        // ---------------------------------------------------------------------
-        //  Creamos el esquema y declaramos la tabla sobre la que vamos a lanzar
-        //  la query
-        // ---------------------------------------------------------------------
         // Aplicamos el esquema que hemos creado a las lineas que hemos creado en
         // el paso anterior..
         JavaSchemaRDD rankingSchemaRDD = sqlCtx.applySchema(rowRDD, schema);
@@ -171,8 +163,8 @@ public class Query01ProgrammaticallyTest extends SQLTest {
         for (int i = 0; i < NUM_TRIALS; i++) {
             // Medimos el timepo de inicio del experimento.
             startTime = System.currentTimeMillis();
-            //  Lanzamos la query        
-            results = sqlCtx.sql("SELECT pageURL, pageRank FROM rankings WHERE pageRank > 10");
+            //  Lanzamos la query
+            results = sqlCtx.sql(this.getPageRankValueSelectQuery(10));
             // Medimos el tiempo de finalizacion del experimento.
             endTime = System.currentTimeMillis();
             // Sumamos el tiempo de la iteracion actual

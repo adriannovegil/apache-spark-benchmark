@@ -17,7 +17,6 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.tests.query04;
 
-import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.List;
 import org.apache.spark.SparkConf;
@@ -58,12 +57,11 @@ import org.apache.spark.sql.hive.api.java.JavaHiveContext;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query04HiveTest extends SQLTest {
+public class Query04HiveTest extends Query04Test {
 
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
     private static JavaHiveContext sqlCtx;
-    private static String urlCountPythonScriptPath;
 
     /**
      * Metodo que se encarga de la inicializacion del contexto Spark de
@@ -92,10 +90,6 @@ public class Query04HiveTest extends SQLTest {
         ctx = new JavaSparkContext(sparkConf);
         // Creamos un contexto SQL en el que lanzaremos las querys.
         sqlCtx = new JavaHiveContext(ctx);
-        // Recuperamos el path absoluto hasta el script auxiliar que usamos para
-        // procesar los datos.        
-        urlCountPythonScriptPath = 
-               ConfigurationManager.get("apache.benchmark.config.sql.query.04.hive.url.count.python.script.path");
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
@@ -129,15 +123,11 @@ public class Query04HiveTest extends SQLTest {
             // Medimos el timepo de inicio del experimento.
             startTime = System.currentTimeMillis();
             // Si existiese previamente la tabla, nos la cargamos.
-            sqlCtx.hql("DROP TABLE IF EXISTS documents");
+            sqlCtx.hql(this.getDropDocumentsTableQuery());
             // Creamos la tabla y cargamo slos datos.
-            sqlCtx.hql("CREATE EXTERNAL TABLE documents (line STRING) "
-                    + "STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/crawl'");
-            sqlCtx.hql("DROP TABLE IF EXISTS url_counts_partial");
-            sqlCtx.hql("CREATE TABLE url_counts_partial AS"
-                    + " SELECT TRANSFORM (line)"                    
-                    + " USING 'python " + urlCountPythonScriptPath + "' as (sourcePage,"
-                    + " destPage, count) from documents");
+            sqlCtx.hql(this.getCreateDocumentsTableQuery());
+            sqlCtx.hql(this.getDropUrlCountsPartialTableQuery());
+            sqlCtx.hql(this.getCreateUrlCountsPartialTableQuery());
             // Medimos el tiempo de finalizacion del experimento.
             endTime = System.currentTimeMillis();
             // Sumamos el tiempo de la iteracion actual
@@ -153,7 +143,8 @@ public class Query04HiveTest extends SQLTest {
         if (VERBOSE_MODE) {
             // Lanzamos una query para recuperar los datos procesados y verificar
             // el resultado.        
-            JavaSchemaRDD results = sqlCtx.hql("SELECT * FROM url_counts_partial");
+            JavaSchemaRDD results = sqlCtx.hql(this.getSelectTableQuery());
+            // Mostramos el resultado
             this.debug(results);
         }
         // Retornamos true indicando que el metodo ha terminado correctamente

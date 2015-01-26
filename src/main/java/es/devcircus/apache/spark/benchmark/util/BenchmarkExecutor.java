@@ -17,6 +17,12 @@
  */
 package es.devcircus.apache.spark.benchmark.util;
 
+import es.devcircus.apache.spark.benchmark.util.sql.SQLTest;
+
+/**
+ *
+ * @author Adrian Novegil <adrian.novegil@gmail.com>
+ */
 public final class BenchmarkExecutor {
 
     /**

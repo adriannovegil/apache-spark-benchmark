@@ -19,7 +19,6 @@ package es.devcircus.apache.spark.benchmark.sql.tests.query03;
 
 import es.devcircus.apache.spark.benchmark.sql.model.Ranking;
 import es.devcircus.apache.spark.benchmark.sql.model.UserVisit;
-import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
@@ -65,7 +64,7 @@ import org.apache.spark.sql.api.java.StructType;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query03ProgrammaticallyTest extends SQLTest {
+public class Query03ProgrammaticallyTest extends Query03Test {
 
     private static final SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -125,9 +124,6 @@ public class Query03ProgrammaticallyTest extends SQLTest {
             System.out.println("Resultado del conteo del RDD de Ranking......: " + rankingCountResult);
             System.out.println("Resultado del conteo del RDD de User Visits..: " + uservisitsCountResult);
         }
-        // ---------------------------------------------------------------------
-        //  Definimos el modelo de resultado de la consulta mediante programacion
-        // ---------------------------------------------------------------------
         // Definimos la lista de atributos.
         List<StructField> rankingFields = new ArrayList<>();
         // Para cada uno de los atributos especificamos el nombre y el tipo de 
@@ -186,10 +182,6 @@ public class Query03ProgrammaticallyTest extends SQLTest {
                                 new Integer(fields[8]));
                     }
                 });
-        // ---------------------------------------------------------------------
-        //  Creamos el esquema y declaramos la tabla sobre la que vamos a lanzar
-        //  la query
-        // ---------------------------------------------------------------------
         // Aplicamos el esquema que hemos creado a las lineas que hemos creado en
         // el paso anterior..
         JavaSchemaRDD rankingSchemaRDD = sqlCtx.applySchema(rankingRowRDD, rankingSchema);
@@ -218,16 +210,7 @@ public class Query03ProgrammaticallyTest extends SQLTest {
             // Medimos el timepo de inicio del experimento.
             startTime = System.currentTimeMillis();
             //  Lanzamos la query
-            results = sqlCtx.sql(
-                    "SELECT sourceIP, sum(adRevenue) as totalRevenue, avg(pageRank) as pageRank"
-                    + " FROM rankings R JOIN"
-                    + " (SELECT sourceIP, destURL, adRevenue"
-                    + " FROM uservisits UV"
-                    + " WHERE UV.visitDate > CAST('2002-01-01 00:00:00.000' AS TIMESTAMP)"
-                    + " AND UV.visitDate < CAST('2010-01-01 00:00:00.000' AS TIMESTAMP))"
-                    + " NUV ON (R.pageURL = NUV.destURL)"
-                    + " GROUP BY sourceIP"
-                    + " ORDER BY totalRevenue DESC LIMIT 1");
+            results = sqlCtx.sql(this.getJoinSelectQuery("2010-01-01 00:00:00.000"));
             // Medimos el tiempo de finalizacion del experimento.
             endTime = System.currentTimeMillis();
             // Sumamos el tiempo de la iteracion actual

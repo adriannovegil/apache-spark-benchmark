@@ -17,7 +17,6 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.tests.query03;
 
-import es.devcircus.apache.spark.benchmark.util.SQLTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.List;
 import org.apache.spark.SparkConf;
@@ -56,7 +55,7 @@ import org.apache.spark.sql.hive.api.java.JavaHiveContext;
  *
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
-public class Query03HiveTest extends SQLTest {
+public class Query03HiveTest extends Query03Test {
 
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
@@ -103,21 +102,15 @@ public class Query03HiveTest extends SQLTest {
     @Override
     public Boolean prepare() {
         // Si existiese previamente la tabla, nos la cargamos.
-        sqlCtx.hql("DROP TABLE IF EXISTS rankings");
-        sqlCtx.hql("DROP TABLE IF EXISTS uservisits");
+        sqlCtx.hql(this.getDropRankingsTableQuery());
+        sqlCtx.hql(this.getDropUservisitsTableQuery());
         // Creamos la tabla y cargamo slos datos.
-        sqlCtx.hql("CREATE TABLE IF NOT EXISTS rankings (pageURL STRING, pageRank INT, avgDuration INT)"
-                + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ',' "
-                + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/rankings'");
-        sqlCtx.hql("CREATE EXTERNAL TABLE uservisits (sourceIP STRING,destURL STRING,"
-                + " visitDate STRING,adRevenue DOUBLE,userAgent STRING,countryCode STRING,"
-                + " languageCode STRING,searchWord STRING,duration INT )"
-                + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
-                + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/uservisits'");
+        sqlCtx.hql(this.getCreateRankingsTableQuery());
+        sqlCtx.hql(this.getCreateUservisitsTableQuery());
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
-    
+
     /**
      * Metodo que ejecuta el core de la prueba que estamos realizando.
      *
@@ -135,16 +128,7 @@ public class Query03HiveTest extends SQLTest {
             // Medimos el timepo de inicio del experimento.
             startTime = System.currentTimeMillis();
             // Lanzamos las query sobre los datos.
-            results = sqlCtx.hql(
-                    "SELECT sourceIP, sum(adRevenue) as totalRevenue, avg(pageRank) as pageRank"
-                    + " FROM rankings R JOIN"
-                    + " (SELECT sourceIP, destURL, adRevenue"
-                    + " FROM uservisits UV"
-                    + " WHERE CAST(UV.visitDate AS TIMESTAMP) > CAST('2002-01-01 00:00:00.000' AS TIMESTAMP)"
-                    + " AND CAST(UV.visitDate AS TIMESTAMP) < CAST('2010-01-01 00:00:00.000' AS TIMESTAMP))"
-                    + " NUV ON (R.pageURL = NUV.destURL)"
-                    + " GROUP BY sourceIP"
-                    + " ORDER BY totalRevenue DESC LIMIT 1");
+            results = sqlCtx.hql(this.getJoinSelectQuery("2010-01-01 00:00:00.000"));
             // Medimos el tiempo de finalizacion del experimento.
             endTime = System.currentTimeMillis();
             // Sumamos el tiempo de la iteracion actual

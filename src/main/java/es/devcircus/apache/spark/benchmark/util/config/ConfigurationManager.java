@@ -20,7 +20,6 @@ package es.devcircus.apache.spark.benchmark.util.config;
 import es.devcircus.apache.spark.benchmark.util.config.utils.PropertiesUtil;
 import es.devcircus.apache.spark.benchmark.util.config.watchdog.FileWatchdog;
 import es.devcircus.apache.spark.benchmark.util.config.watchdog.PropertyWatchdog;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
