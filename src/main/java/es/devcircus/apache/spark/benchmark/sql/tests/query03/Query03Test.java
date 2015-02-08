@@ -55,7 +55,7 @@ public abstract class Query03Test extends SQLTest {
      */
     protected String getCreateRankingsTableQuery() {
         // Retornamos la query compuesta.
-        return " CREATE TABLE IF NOT EXISTS rankings (pageURL STRING, pageRank INT,"
+        return "CREATE EXTERNAL TABLE IF NOT EXISTS rankings (pageURL STRING, pageRank INT,"
                 + " avgDuration INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
                 + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/rankings'";
     }
@@ -68,7 +68,7 @@ public abstract class Query03Test extends SQLTest {
      */
     protected String getCreateUservisitsTableQuery() {
         // Retornamos la query compuesta.
-        return "CREATE EXTERNAL TABLE uservisits (sourceIP STRING,destURL STRING,"
+        return "CREATE EXTERNAL TABLE IF NOT EXISTS uservisits (sourceIP STRING,destURL STRING,"
                 + " visitDate STRING,adRevenue DOUBLE,userAgent STRING,countryCode STRING,"
                 + " languageCode STRING,searchWord STRING,duration INT )"
                 + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"

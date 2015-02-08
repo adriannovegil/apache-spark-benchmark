@@ -41,28 +41,27 @@ import java.util.Map;
 public class Main {
 
     /**
-     * Timeout in milliseconds to wait for every run
+     * Mapa de resultados de la ejecucion de los benchmark.
      */
-    private static long timeout;
-
-    /**
-     * Name of the active persistence unit
-     */
-    private static final String persistenceUnitName = "prueba";
-
     private static final Map<String, Long> sqlBenchmarResults = new HashMap<>();
 
     /**
+     * Metodo principal
      *
      * @param args
-     * @throws java.io.IOException
-     * @throws java.lang.InterruptedException
      */
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static void main(String[] args) {
+        new Main().run();
+    }
+
+    /**
+     * Runs the JPA Benchmark tests.
+     */
+    private void run() {
         // Cargamos la configuracion del benchmark.
         ConfigurationManager.loadConfigure("benchmark.properties");
         // Ejecutamos los Benchmark de SQL
-        executeSqlBenchmarks();
+        runAllActiveSQLCombinations();
         // Una vez hemos terminado la ejecucion de los benchmark, mostramos los
         // resultados por pantalla.
         printResults();
@@ -71,7 +70,7 @@ public class Main {
     /**
      *
      */
-    private static void executeSqlBenchmarks() {
+    private static void runAllActiveSQLCombinations() {
         // Variable auxiliar con la que gestionamos los resultados de los benchmark.
         Boolean result;
 
@@ -172,7 +171,7 @@ public class Main {
         for (String key : sqlBenchmarResults.keySet()) {
             System.out.println("  - Benchmark..: " + key + " - Tiempo..: " + sqlBenchmarResults.get(key));
         }
-        
+
         System.out.println("");
     }
 }

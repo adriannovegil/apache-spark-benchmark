@@ -44,7 +44,7 @@ public abstract class Query02Test extends SQLTest {
      */
     protected String getCreateUservisitsTableQuery() {
         // Retornamos la query compuesta.
-        return "CREATE EXTERNAL TABLE uservisits (sourceIP STRING,destURL STRING,"
+        return "CREATE EXTERNAL TABLE IF NOT EXISTS uservisits (sourceIP STRING,destURL STRING,"
                 + " visitDate STRING,adRevenue DOUBLE,userAgent STRING,countryCode STRING,"
                 + " languageCode STRING,searchWord STRING,duration INT )"
                 + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"

@@ -44,7 +44,7 @@ public abstract class Query01Test extends SQLTest {
      */
     protected String getCreateRankingsTableQuery() {
         // Retornamos la query compuesta.
-        return " CREATE TABLE IF NOT EXISTS rankings (pageURL STRING, pageRank INT,"
+        return "CREATE EXTERNAL TABLE IF NOT EXISTS rankings (pageURL STRING, pageRank INT,"
                 + " avgDuration INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
                 + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/rankings'";
     }

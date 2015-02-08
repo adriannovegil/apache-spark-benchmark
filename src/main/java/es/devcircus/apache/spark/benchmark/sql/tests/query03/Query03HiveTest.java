@@ -105,8 +105,16 @@ public class Query03HiveTest extends Query03Test {
         sqlCtx.hql(this.getDropRankingsTableQuery());
         sqlCtx.hql(this.getDropUservisitsTableQuery());
         // Creamos la tabla y cargamo slos datos.
-        sqlCtx.hql(this.getCreateRankingsTableQuery());
-        sqlCtx.hql(this.getCreateUservisitsTableQuery());
+        JavaSchemaRDD rankingData = sqlCtx.hql(this.getCreateRankingsTableQuery());
+        JavaSchemaRDD uservisitsData = sqlCtx.hql(this.getCreateUservisitsTableQuery());
+        if (VERBOSE_MODE) {
+            // Contamos los resultados recuperados.
+            Long rankingCountResult = rankingData.count();
+            Long uservisitsCountResult = uservisitsData.count();
+            // Mostramos el resultado del conteo por pantalla.
+            System.out.println("Resultado del conteo del RDD de Ranking......: " + rankingCountResult);
+            System.out.println("Resultado del conteo del RDD de User Visits..: " + uservisitsCountResult);
+        }
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
