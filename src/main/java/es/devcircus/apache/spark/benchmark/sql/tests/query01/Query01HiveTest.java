@@ -117,26 +117,9 @@ public class Query01HiveTest extends Query01Test {
      */
     @Override
     public Boolean execute() {
-        Long startTime;
-        Long endTime;
-        Long tmpRunTime = (long) 0;
         JavaSchemaRDD results = null;
-        // Repetimos la ejecucion de la query tantas veces como sea necesario.        
-        for (int i = 0; i < NUM_TRIALS; i++) {
-            // Medimos el timepo de inicio del experimento.
-            startTime = System.currentTimeMillis();
-            // Lanzamos las query sobre los datos.
-            results = sqlCtx.hql(this.getPageRankValueSelectQuery(10));
-            // Medimos el tiempo de finalizacion del experimento.
-            endTime = System.currentTimeMillis();
-            // Sumamos el tiempo de la iteracion actual
-            tmpRunTime += endTime - startTime;
-        }
-        // Calculamos el runTime del experimento actual dividiendo la suma de los
-        // tiempos parciales entre el numero de iteraciones.
-        tmpRunTime = tmpRunTime / NUM_TRIALS;
-        // Seteamos el resultado del tiempo calculado.
-        setRunTime(tmpRunTime);
+        // Lanzamos las query sobre los datos.
+        results = sqlCtx.hql(this.getPageRankValueSelectQuery(10));
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {

@@ -110,7 +110,7 @@ public class Query01ReflectionTest extends Query01Test {
             Long countResult = rankingData.count();
             // Mostramos el resultado del conteo por pantalla.
             System.out.println("Resultado del conteo del RDD...: " + countResult);
-        }    
+        }
         // Convertimos las lineas que creamos como String a partir del fichero de
         // texto a instancias de modelo. En este punto aun no podemos mapear al
         // esquema concreto.
@@ -143,26 +143,9 @@ public class Query01ReflectionTest extends Query01Test {
      */
     @Override
     public Boolean execute() {
-        Long startTime;
-        Long endTime;
-        Long tmpRunTime = (long) 0;
         JavaSchemaRDD results = null;
-        // Repetimos la ejecucion de la query tantas veces como sea necesario.        
-        for (int i = 0; i < NUM_TRIALS; i++) {
-            // Medimos el timepo de inicio del experimento.
-            startTime = System.currentTimeMillis();
-            //  Lanzamos la query
-            results = sqlCtx.sql(this.getPageRankValueSelectQuery(10));
-            // Medimos el tiempo de finalizacion del experimento.
-            endTime = System.currentTimeMillis();
-            // Sumamos el tiempo de la iteracion actual
-            tmpRunTime += endTime - startTime;
-        }
-        // Calculamos el runTime del experimento actual dividiendo la suma de los
-        // tiempos parciales entre el numero de iteraciones.
-        tmpRunTime = tmpRunTime / NUM_TRIALS;
-        // Seteamos el resultado del tiempo calculado.
-        setRunTime(tmpRunTime);
+        //  Lanzamos la query
+        results = sqlCtx.sql(this.getPageRankValueSelectQuery(10));
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {

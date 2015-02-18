@@ -27,11 +27,8 @@ import java.io.Serializable;
 public abstract class Test implements Serializable {
 
     private String name;
-    private Long configTime;
-    private Long prepareTime;
-    private Long runTime;
-    protected static Boolean VERBOSE_MODE = null;
-    protected static Integer NUM_TRIALS = null;
+    public static Boolean VERBOSE_MODE = null;
+    public static Integer NUM_TRIALS = null;
     
     static {
         // Modo verbose.
@@ -56,40 +53,6 @@ public abstract class Test implements Serializable {
      */
     public void setName(String name) {
         this.name = name;
-    }
-
-    public Long getConfigTime() {
-        return configTime;
-    }
-
-    public void setConfigTime(Long configTime) {
-        this.configTime = configTime;
-    }
-
-    public Long getPrepareTime() {
-        return prepareTime;
-    }
-
-    public void setPrepareTime(Long prepareTime) {
-        this.prepareTime = prepareTime;
-    }
-
-    /**
-     * Metodo que nos permite recuperar el valor del atributo runTime.
-     *
-     * @return Valor del atributo runTime.
-     */
-    public Long getRunTime() {
-        return runTime;
-    }
-
-    /**
-     * Metodo que nos permite setear el valor del atributo runTime.
-     *
-     * @param runTime Nueva valor del atributo runTime.
-     */
-    public void setRunTime(Long runTime) {
-        this.runTime = runTime;
     }
 
     /**
