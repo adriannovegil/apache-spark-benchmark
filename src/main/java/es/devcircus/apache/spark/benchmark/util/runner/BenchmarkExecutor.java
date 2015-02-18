@@ -15,8 +15,9 @@
  * this program; see the file COPYING. If not, see
  * <http://www.gnu.org/licenses/>.
  */
-package es.devcircus.apache.spark.benchmark.util;
+package es.devcircus.apache.spark.benchmark.util.runner;
 
+import es.devcircus.apache.spark.benchmark.util.Test;
 import es.devcircus.apache.spark.benchmark.util.sql.SQLTest;
 
 /**

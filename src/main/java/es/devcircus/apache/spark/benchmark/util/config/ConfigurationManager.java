@@ -18,8 +18,6 @@
 package es.devcircus.apache.spark.benchmark.util.config;
 
 import es.devcircus.apache.spark.benchmark.util.config.utils.PropertiesUtil;
-import es.devcircus.apache.spark.benchmark.util.config.watchdog.FileWatchdog;
-import es.devcircus.apache.spark.benchmark.util.config.watchdog.PropertyWatchdog;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InterruptedIOException;
@@ -34,122 +32,159 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class ConfigurationManager {
 
-    private static final String BASE_APP_DIR_KEY = "base.config.app.url";
-    private static final String BASE_CONFIG_DIR_KEY = "base.config.dir.name";
-    private static final String BASE_CONFIG_FILE = "system.properties";
-    public static String BASE_CONFIG_DIR;
-    public static String BASE_APP_DIR;
+    /**
+     * Valor por defecto del fichero de configuración, si no especificamos otro,
+     * la carga de los parametros de configuracion se hara con este.
+     */
+    private static final String BASE_CONFIG_FILE = "benchmark.properties";
     /**
      * Mapa que contiene la lista de propiedades y su valor.
      */
-    private static Map<String, String> _properties = new ConcurrentHashMap<String, String>();
+    private static Map<String, String> _properties = null;
 
     /**
-     * Cargamos el valor de la URL base donde se encuentra el directorio de
-     * configuración de nuestra aplicación.
+     * Metodo que se encarga de carga los parametros de configuracion que
+     * usaremos en el sistema.
      */
-    static {
-
-        Properties props = new Properties();
-        InputStream istream = null;
-
-        try {
-            //Abrimos un InputStream con la URL del 
-            istream = ConfigurationManager.class.getResourceAsStream("/" + BASE_CONFIG_FILE);
-            if (istream == null) {
-                BASE_APP_DIR = "";
-                BASE_CONFIG_DIR = "";
-            } else {
-                //Cargamos las properties a partir del InputStream
-                props.load(istream);
-                //Definimos el valor del directorio raiz de configuración
-                BASE_CONFIG_DIR = props.getProperty(BASE_APP_DIR_KEY) + "/"
-                        + props.getProperty(BASE_CONFIG_DIR_KEY);
-                //Cargamos el resto de los parámetros de configuración en memoria.
-                ConfigurationManager.loadConfigure(props);
-                //Cerramos el InputStream
-                istream.close();
-            }
-        } catch (Exception e) {
-            if (e instanceof InterruptedIOException || e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-        } finally {
-            if (istream != null) {
-                try {
-                    istream.close();
-                } catch (InterruptedIOException ignore) {
-                    Thread.currentThread().interrupt();
-                } catch (Throwable ignore) {
-                }
-
-            }
-        }
-
+    public static void configure() {
+        loadConfigure(BASE_CONFIG_FILE);
     }
 
     /**
+     * Metodo que se encarga de carga los parametros de configuracion que
+     * usaremos en el sistema.
      *
-     * @param configFilename
+     * @param configFilename Fichero del que queremos extraer los parametros de
+     * configuracion.
      */
     public static void configure(String configFilename) {
-        ConfigurationManager.loadConfigure(configFilename);
+        loadConfigure(configFilename);
     }
 
     /**
+     * Metodo que se encarga de carga los parametros de configuracion que
+     * usaremos en el sistema.
      *
-     * @param configURL
+     * @param configURL URL al fichero de congiuración del que queremos extraer
+     * los parametros de configuración.
      */
     public static void configure(java.net.URL configURL) {
-        ConfigurationManager.loadConfigure(configURL);
+        loadConfigure(configURL);
     }
 
     /**
+     * Metodo que se encarga de carga los parametros de configuracion que
+     * usaremos en el sistema.
      *
-     * @param inputStream
+     * @param inputStream InputStream al fichero de configuración del que
+     * queremos extraer los parametros de configuración.
      */
     public static void configure(InputStream inputStream) {
-        ConfigurationManager.loadConfigure(inputStream);
+        loadConfigure(inputStream);
     }
 
     /**
+     * Método que nos permite recuperar la isntancia de Properties asociada al
+     * manager.
      *
-     * @param configFilename
+     * @return Instancia de Properties que alberga las propiedades del sistema.
      */
-    public static void configureAndWatch(String configFilename) {
-        configureAndWatch(configFilename, FileWatchdog.DEFAULT_DELAY);
+    public static Properties getProperties() {
+        if (ConfigurationManager._properties == null) {
+            configure();
+        }
+        return PropertiesUtil.getPropertiesfromMap(ConfigurationManager._properties);
     }
 
     /**
+     * Método que nos retorna el valor de un parámetro de configuración pasado
+     * como parámetro.
      *
-     * @param configFilename
-     * @param delay
+     * @param key parámetro de configuración que queremos recuperar.
+     * @return cadena de texto que contiene el valor del parámetro que queremos
+     * recuperar.
      */
-    public static void configureAndWatch(String configFilename, long delay) {
-        //Instanciamos un nuevo objeto PropertyWatchdog que se encargará de la
-        //supervisión del fichero
-        PropertyWatchdog pdog = new PropertyWatchdog(configFilename);
-        //Indicamos el dalay que se debe aplicar a la supervisión.
-        pdog.setDelay(delay);
-        //Lanzamos el thread.
-        pdog.start();
+    public static String get(String key) {
+        if (ConfigurationManager._properties == null) {
+            configure();
+        }
+        if (ConfigurationManager._properties.containsKey(key)) {
+            String value = ConfigurationManager._properties.get(key);
+            return value;
+        } else {
+            return null;
+        }
     }
 
     /**
+     * Método que nos retorna el valor de un parámetro de configuración pasado
+     * coo parámetro. Antes de retornarnos el valor, recarga aquellos ficheros
+     * que están siendo supervisados.
      *
-     * @param properties
-     * @param hierarchy
+     * @param key parámetro de configuración que queremos recuperar.
+     * @return cadena de texto que contiene el valor del parámetro que queremos
+     * recuperar.
+     */
+    public static String reloadAnGet(String key) {
+        if (ConfigurationManager._properties == null) {
+            configure();
+        }
+        String value = ConfigurationManager._properties.get(key);
+        if (value == null) {
+            value = System.getProperty(key);
+        }
+        return value;
+    }
+
+    /**
+     * Método que nos permite actualizar el valor de un parámetro de
+     * configuración dentro de la aplicación. Hay que destacar que este método
+     * no actualiza el valor en el fichero.
+     *
+     * @param key parámetro de configuración que queremos recuperar.
+     * @param value nuevo valor que queremos asignar.
+     * @return true o false en función de si la operación se ha realizado con
+     * éxito o no.
+     */
+    public static Boolean set(String key, String value) {
+        if (ConfigurationManager._properties == null) {
+            configure();
+        }
+        //Verificamos si existe la clave que queremos actualizar en el sistema.
+        if (ConfigurationManager._properties.containsKey(key)) {
+            //Actualizamos el valor de la propiedad en la tabla.
+            ConfigurationManager._properties.put(key, value);
+            //Retornamos true.
+            return true;
+        } else {
+            //Retornamos false.
+            return false;
+        }
+    }
+
+    /**
+     * Método privado que se encarga de realizar la carga de los parametros de
+     * configuración del sistema.
+     *
+     * @param properties Instancia de properties que queremos cargar en el
+     * manager.
      */
     private static void loadConfigure(Properties properties) {
+        if (_properties == null) {
+            _properties = new ConcurrentHashMap<>();
+        }
         //Añadimos las propiedades a la matriz de properties.
         PropertiesUtil.appendPropertiesToMap(properties, _properties);
     }
 
     /**
+     * Método privado que se encarga de realizar la carga de los parametros de
+     * configuración del sistema.
      *
-     * @param inputStream
+     * @param inputStream InputStream al fichero de configuración del que
+     * queremos extraer los parametros de configuración.
      */
-    public static void loadConfigure(InputStream inputStream) {
+    private static void loadConfigure(InputStream inputStream) {
         //Instanciamos un nuevo objeto de properties.
         Properties props = new Properties();
         try {
@@ -165,15 +200,18 @@ public class ConfigurationManager {
     }
 
     /**
+     * Método privado que se encarga de realizar la carga de los parametros de
+     * configuración del sistema.
      *
-     * @param configFileName
+     * @param configFileName Fichero del que queremos extraer los parametros de
+     * configuracion.
      */
-    public static void loadConfigure(String configFileName) {
+    private static void loadConfigure(String configFileName) {
         //Instanciamos un nuevo objeto de properties.
         Properties props = new Properties();
         InputStream istream = null;
         try {
-            istream = ConfigurationManager.class.getResourceAsStream(BASE_CONFIG_DIR + "/" + configFileName);
+            istream = ConfigurationManager.class.getResourceAsStream("/" + configFileName);
             props.load(istream);
             istream.close();
         } catch (Exception e) {
@@ -197,10 +235,13 @@ public class ConfigurationManager {
     }
 
     /**
+     * Método privado que se encarga de realizar la carga de los parametros de
+     * configuración del sistema.
      *
-     * @param configURL
+     * @param configURL URL al fichero de congiuración del que queremos extraer
+     * los parametros de configuración.
      */
-    public static void loadConfigure(java.net.URL configURL) {
+    private static void loadConfigure(java.net.URL configURL) {
         //Instanciamos un nuevo objeto de properties.
         Properties props = new Properties();
         InputStream istream = null;
@@ -221,77 +262,11 @@ public class ConfigurationManager {
                     istream.close();
                 } catch (InterruptedIOException ignore) {
                     Thread.currentThread().interrupt();
-                } catch (IOException ignore) {
-                } catch (RuntimeException ignore) {
+                } catch (IOException | RuntimeException ignore) {
                 }
             }
         }
         //Cargamos las propiedades en la matriz.
         loadConfigure(props);
-    }
-
-    /**
-     *
-     * @return
-     */
-    public static Properties getProperties() {
-        return PropertiesUtil.getPropertiesfromMap(ConfigurationManager._properties);
-    }
-
-    /**
-     * Método que nos retorna el valor de un parámetro de configuración pasado
-     * como parámetro.
-     *
-     * @param key parámetro de configuración que queremos recuperar.
-     * @return cadena de texto que contiene el valor del parámetro que queremos
-     * recuperar.
-     */
-    public static String get(String key) {
-        if (ConfigurationManager._properties.containsKey(key)) {
-            String value = ConfigurationManager._properties.get(key);
-            return value;
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Método que nos retorna el valor de un parámetro de configuración pasado
-     * coo parámetro. Antes de retornarnos el valor, recarga aquellos ficheros
-     * que están siendo supervisados.
-     *
-     * @param key parámetro de configuración que queremos recuperar.
-     * @return cadena de texto que contiene el valor del parámetro que queremos
-     * recuperar.
-     */
-    public static String reloadAnGet(String key) {
-        String value = ConfigurationManager._properties.get(key);
-        if (value == null) {
-            value = System.getProperty(key);
-        }
-        return value;
-    }
-
-    /**
-     * Método que nos permite actualizar el valor de un parámetro de
-     * configuración dentro de la aplicación. Hay que destacar que este método
-     * no actualiza el valor en el fichero.
-     *
-     * @param key parámetro de configuración que queremos recuperar.
-     * @param value nuevo valor que queremos asignar.
-     * @return true o false en función de si la operación se ha realizado con
-     * éxito o no.
-     */
-    public static Boolean set(String key, String value) {
-        //Verificamos si existe la clave que queremos actualizar en el sistema.
-        if (ConfigurationManager._properties.containsKey(key)) {
-            //Actualizamos el valor de la propiedad en la tabla.
-            ConfigurationManager._properties.put(key, value);
-            //Retornamos true.
-            return true;
-        } else {
-            //Retornamos false.
-            return false;
-        }
     }
 }
