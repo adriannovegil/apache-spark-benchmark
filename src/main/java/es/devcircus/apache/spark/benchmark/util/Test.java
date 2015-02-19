@@ -71,11 +71,5 @@ public abstract class Test implements Serializable {
      *
      * @return
      */
-    public abstract Boolean commit();
-
-    /**
-     *
-     * @return
-     */
     public abstract Boolean close();
 }

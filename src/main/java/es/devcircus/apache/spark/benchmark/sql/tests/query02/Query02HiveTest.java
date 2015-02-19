@@ -56,6 +56,14 @@ public class Query02HiveTest extends Query02Test {
     private static JavaHiveContext sqlCtx;
 
     /**
+     * Constructor por defecto.
+     */
+    public Query02HiveTest() {
+        // Seteamos el nombre del test
+        setName(ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.name"));
+    }
+
+    /**
      * Metodo que se encarga de la inicializacion del contexto Spark de
      * ejecucion, variables de entorno, etc.
      *
@@ -73,7 +81,6 @@ public class Query02HiveTest extends Query02Test {
                 ConfigurationManager.get("apache.benchmark.config.global.master"));
         // Seteamos el nombre del programa. Este nombre se usara en el cluster
         // para su ejecucion y en el proyecto para los resultados.
-        setName(ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.name"));
         sparkConf.setAppName(getName());
         // Seteamos el path a la instalacion de spark
         sparkConf.setSparkHome(
@@ -120,19 +127,6 @@ public class Query02HiveTest extends Query02Test {
             this.debug(results);
         }
         // Retornamos true indicando que el metodo ha terminado correctamente
-        return true;
-    }
-
-    /**
-     * Metodo que se encarga del procesado de los datos del benchmark,
-     * generacion de resultados, etc.
-     *
-     * @return True si el metodo se ha ejecutado correctamente, false en caso
-     * contrario.
-     */
-    @Override
-    public Boolean commit() {
-        // Indicamos que todo ha sucedido correctamente.
         return true;
     }
 

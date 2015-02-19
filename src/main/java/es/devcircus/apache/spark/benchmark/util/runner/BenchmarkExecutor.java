@@ -40,7 +40,6 @@ public final class BenchmarkExecutor {
     public static Boolean process(Test test) {
         test.config();
         test.execute();
-        test.commit();
         test.close();
         return true;
     }
@@ -54,7 +53,6 @@ public final class BenchmarkExecutor {
         test.config();
         test.prepare();
         test.execute();
-        test.commit();
         test.close();
         return true;
     }

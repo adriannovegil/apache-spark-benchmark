@@ -115,8 +115,6 @@ public final class Runner {
         // Calculamos el runTime del experimento actual dividiendo la suma de los
         // tiempos parciales entre el numero de iteraciones.
         this.executeTime = tmpRunTime / Test.NUM_TRIALS;
-        // Finalizamos el test.        
-        this.test.commit();
         // Cerramos el test.
         this.test.close();
         // Anhadimos en el fichero de resultados los datos de la ejecucion.
