@@ -1,10 +1,28 @@
+/**
+ * This file is part of Apache Spark Benchmark.
+ *
+ * Apache Spark Benchmark is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option) any later
+ * version.
+ *
+ * Apache Spark Benchmark is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; see the file COPYING. If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 package es.devcircus.apache.spark.benchmark.util;
 
 import java.io.*;
 import java.util.*;
 
 /**
- * The Launcher class is used to run a JVM in an external process (fork).
+ *
+ * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
 public final class Launcher extends Thread {
 
@@ -71,31 +89,23 @@ public final class Launcher extends Thread {
     @Override
     public void run() {
         try {
-            // Prepare the classpath:
-            StringBuilder sb = new StringBuilder(1024);
-            sb.append(FileHelper.TEMP_DIR.getPath());
-            sb.append(File.pathSeparatorChar).append(FileHelper.CLASS_ROOT);
-            for (String jarPath : jarPaths) {
-                sb.append(File.pathSeparatorChar).append(jarPath);
-            }
-            String classpath = sb.toString();
-
-            // Prepare the JVM command line arguments:
-            List<String> cmdList = new ArrayList<>(64);
+            // Path al home de java.
             File jvmFile = new File(new File(
                     System.getProperty("java.home"), "bin"), "java");
-            cmdList.add(jvmFile.getPath());
-            cmdList.add("-server");
-            cmdList.add("-Xmx512m");
-            cmdList.add("-cp");
-            cmdList.add(classpath);
-            cmdList.add(mainClass.getName());
-            cmdList.addAll(argList);
-            String[] cmd = cmdList.toArray(new String[0]);
 
-            // Start executing the JVM process (asynchronously):
+//            // Comando a ejecutar.
+//            List<String> cmdList = new ArrayList<>(64);
+//            // Componemos el comando a ejecutar.
+//            cmdList.add("mvn ");
+//            cmdList.add("\"-Dexec.args=");
+//            cmdList.add("-classpath %classpath es.devcircus.apache.spark.benchmark.util.runner.Runner ");
+//            cmdList.add(testClass + "\" ");
+//            cmdList.add("-Dexec.executable=" + jvmFile.getPath());
+//            cmdList.add(" org.codehaus.mojo:exec-maven-plugin:1.2.1:exec");
+//            String[] cmd = cmdList.toArray(new String[0]);
+//            // Lanzamos la ejecucion del comando del test.
 //            process = Runtime.getRuntime().exec(cmd, null);
-//            process = Runtime.getRuntime().exec("mvn \"-Dexec.args=-classpath %classpath es.devcircus.apache.spark.benchmark.sql.tests.query01.Query01HiveTest\" -Dexec.executable=/usr/lib/jvm/java-8-oracle/bin/java org.codehaus.mojo:exec-maven-plugin:1.2.1:exec", null);
+
             process = Runtime.getRuntime().exec(
                     "mvn "
                     + "\"-Dexec.args="
@@ -103,19 +113,16 @@ public final class Launcher extends Thread {
                     + testClass + "\" "
                     + "-Dexec.executable=" + jvmFile.getPath()
                     + " org.codehaus.mojo:exec-maven-plugin:1.2.1:exec", null);
-
             // Start collecting standard output and error:
+            // Estas clases se encargan de recoger la salida estandar y la salida
+            // de error del thread en el que vamos a ejecutar el test.
             MessageCollector errorListener
                     = new MessageCollector(process.getErrorStream(), errMsgList);
-
             errorListener.start();
-
             MessageCollector outputListener
                     = new MessageCollector(process.getInputStream(), outMsgList);
-
             outputListener.start();
-
-            // Wait for the process to complete:
+            // Esperamos a que termine el test.:
             processSet.add(process);
             exitCode = process.waitFor();
             processSet.remove(process);

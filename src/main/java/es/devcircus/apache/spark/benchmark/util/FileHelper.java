@@ -1,10 +1,29 @@
+/**
+ * This file is part of Apache Spark Benchmark.
+ *
+ * Apache Spark Benchmark is free software; you can redistribute it and/or
+ * modify it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2, or (at your option) any later
+ * version.
+ *
+ * Apache Spark Benchmark is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+ * FITNESS FOR A PARTICULAR PURPOSE. See the GNU General Public License for more
+ * details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; see the file COPYING. If not, see
+ * <http://www.gnu.org/licenses/>.
+ */
 package es.devcircus.apache.spark.benchmark.util;
 
+import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.io.*;
 import java.util.*;
 
 /**
- * Helper static methods and constants for using the file system.
+ *
+ * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
 public abstract class FileHelper {
 
@@ -18,49 +37,13 @@ public abstract class FileHelper {
     /**
      * The root of the benchmark directory
      */
-    public static final File ROOT_DIR = new File(CLASS_ROOT).getParentFile();
-
-    /**
-     * Parent directory of the DBMS implementations
-     */
-    public static final File DBMS_DIR = new File(ROOT_DIR, "db");
-
-    /**
-     * Subdirectories of all the DBMS implementations
-     */
-    public static final File[] DBMS_DIRS = FileHelper.DBMS_DIR.listFiles();
-
-    /**
-     * Parent directory of the JPA ORM providers
-     */
-    public static final File JPA_DIR = new File(ROOT_DIR, "jpa");
-
-    /**
-     * Subdirectories of all the JPA providers
-     */
-    public static final File[] JPA_DIRS = FileHelper.JPA_DIR.listFiles();
-
-    /**
-     * Temporary directory
-     */
-    public static final File TEMP_DIR = new File(ROOT_DIR, "temp");
-
-    /**
-     * Working directory (for database files in embedded mode)
-     */
-    public static final File WORK_DIR = new File(TEMP_DIR, "work");
-
-    /**
-     * Dynamically generated persistence.xml file
-     */
-    public static final File PU_XML_FILE
-            = new File(new File(TEMP_DIR, "META-INF"), "persistence.xml");
+    public static final File ROOT_DIR = new File(
+            ConfigurationManager.get("apache.benchmark.config.global.root.dir"));
 
     /**
      * Output result file (filled in addition to stdout results)
      */
-//    static final File RESULT_FILE = new File(ROOT_DIR, "results.txt");
-    public static final File RESULT_FILE = new File("/tmp/", "results.txt");
+    public static final File RESULT_FILE = new File(ROOT_DIR + "/", "results.txt");
 
     /**
      * Deletes the files and sub directories in a specified directory.
@@ -106,6 +89,7 @@ public abstract class FileHelper {
     static File[] getJarFiles(File dir) {
         return dir.listFiles(
                 new FilenameFilter() {
+                    @Override
                     public boolean accept(File dir, String name) {
                         return name.toLowerCase().endsWith(".jar");
                     }
@@ -139,11 +123,8 @@ public abstract class FileHelper {
             if (!dir.exists()) {
                 dir.mkdirs();
             }
-            FileOutputStream out = new FileOutputStream(file);
-            try {
+            try (FileOutputStream out = new FileOutputStream(file)) {
                 out.write(text.getBytes());
-            } finally {
-                out.close();
             }
         } catch (IOException e) {
             throw new RuntimeException(e);
@@ -158,14 +139,10 @@ public abstract class FileHelper {
      */
     public static void writeTextLine(String line, File file) {
         try {
-            PrintWriter writer = new PrintWriter(new FileWriter(file, true));
-            try {
-                writer.println(line);                
-            } finally {
-                writer.close();
+            try (PrintWriter writer = new PrintWriter(new FileWriter(file, true))) {
+                writer.println(line);
             }
         } catch (IOException e) {
-            e.printStackTrace();
             System.exit(1);
         }
     }
