@@ -120,9 +120,6 @@ public abstract class FormatHelper {
         return INT_FORMAT.format(value);
     }
 
-    //-----------------//
-    // Date Formatting //
-    //-----------------//
     /**
      * Formats a specified time value.
      *
@@ -143,18 +140,16 @@ public abstract class FormatHelper {
     public static String formatStackTrace(Throwable e) {
         // Convert the stack to a string:
         ByteArrayOutputStream out = new ByteArrayOutputStream(1024);
-        PrintWriter writer = new PrintWriter(out);
-        e.printStackTrace(writer);
-        writer.close();
+        try (PrintWriter writer = new PrintWriter(out)) {
+            e.printStackTrace(writer);
+        }
         String stackTrace = out.toString();
-
         // Replace new lines with a delimiter:
         String delimiter = "|||";
         stackTrace = stackTrace.replace(FormatHelper.NEW_LINE, delimiter);
         stackTrace = stackTrace.replace("\r\n", delimiter);
         stackTrace = stackTrace.replace("\r", delimiter);
         stackTrace = stackTrace.replace("\n", delimiter);
-
         // Return the result single line string:
         return stackTrace;
     }

@@ -28,11 +28,14 @@ public abstract class Test implements Serializable {
 
     private String name;
     public static Boolean VERBOSE_MODE = null;
+    public static Boolean TEST_MODE = null;
     public static Integer NUM_TRIALS = null;
     
     static {
         // Modo verbose.
         VERBOSE_MODE = (ConfigurationManager.get("apache.benchmark.config.global.verbose").equals("1"));
+        // Modo test. Se ejecutan metodos de validacion de datos internos.
+        TEST_MODE = (ConfigurationManager.get("apache.benchmark.config.global.test.mode").equals("1"));
         // Numero de repeticiones de los experimentos
         NUM_TRIALS = new Integer(ConfigurationManager.get("apache.benchmark.config.global.num.trials"));
     }

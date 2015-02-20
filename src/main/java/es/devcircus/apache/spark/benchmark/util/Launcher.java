@@ -36,6 +36,9 @@ public final class Launcher extends Thread {
      */
     private final String[] jarPaths;
 
+    /**
+     * Clase del test.
+     */
     private final String testClass;
 
     /**
@@ -113,6 +116,7 @@ public final class Launcher extends Thread {
                     + testClass + "\" "
                     + "-Dexec.executable=" + jvmFile.getPath()
                     + " org.codehaus.mojo:exec-maven-plugin:1.2.1:exec", null);
+            
             // Start collecting standard output and error:
             // Estas clases se encargan de recoger la salida estandar y la salida
             // de error del thread en el que vamos a ejecutar el test.
@@ -122,7 +126,7 @@ public final class Launcher extends Thread {
             MessageCollector outputListener
                     = new MessageCollector(process.getInputStream(), outMsgList);
             outputListener.start();
-            // Esperamos a que termine el test.:
+            // Esperamos a que termine el test.
             processSet.add(process);
             exitCode = process.waitFor();
             processSet.remove(process);

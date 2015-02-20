@@ -30,6 +30,8 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.sql.api.java.JavaSQLContext;
 import org.apache.spark.sql.api.java.JavaSchemaRDD;
 import org.apache.spark.sql.api.java.Row;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 3. Join Query
@@ -67,6 +69,9 @@ public class Query03ReflectionTest extends Query03Test {
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
     private static JavaSQLContext sqlCtx;
+
+    // Looger del test
+    private final Logger LOGGER = LoggerFactory.getLogger(Query03ReflectionTest.class);
 
     /**
      * Constructor por defecto.
@@ -119,13 +124,20 @@ public class Query03ReflectionTest extends Query03Test {
         JavaRDD<String> rankingData = ctx.textFile(BASE_DATA_PATH + "/rankings");
         // Cargamos los datos desde el fichero de uservisits.
         JavaRDD<String> uservisitsData = ctx.textFile(BASE_DATA_PATH + "/uservisits");
+        // Si esta activo el modo de debug llamamos al metodo que logea la 
+        // informacion
         if (VERBOSE_MODE) {
-            // Contamos los resultados recuperados.
-            Long rankingCountResult = rankingData.count();
-            Long uservisitsCountResult = uservisitsData.count();
-            // Mostramos el resultado del conteo por pantalla.
-            System.out.println("Resultado del conteo del RDD de Ranking......: " + rankingCountResult);
-            System.out.println("Resultado del conteo del RDD de User Visits..: " + uservisitsCountResult);
+            this.debugPrepare(rankingData, uservisitsData);
+        }
+        // Si esta activo el TEST_MODE, ejecutamos una serie de operaciones internas
+        // que intentan determinar si los datos son correctos.
+        if (TEST_MODE) {
+            if (rankingData.count() <= 0) {
+                return false;
+            }
+            if (uservisitsData.count() <= 0) {
+                return false;
+            }
         }
         // Convertimos las lineas que creamos como String a partir del fichero de
         // texto a instancias de modelo. En este punto aun no podemos mapear al
@@ -185,9 +197,16 @@ public class Query03ReflectionTest extends Query03Test {
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {
-            this.debug(results);
+            this.debugExecute(results);
         }
-        // Retornamos true indicando que el metodo ha terminado correctamente
+        // Si esta activo el TEST_MODE, ejecutamos una serie de operaciones internas
+        // que intentan determinar si los datos son correctos.
+        if (TEST_MODE) {
+            if (results.count() <= 0) {
+                return false;
+            }
+        }
+        // Todo ha salido perfectamente.
         return true;
     }
 
@@ -207,12 +226,28 @@ public class Query03ReflectionTest extends Query03Test {
     }
 
     /**
-     * Metodo interno para mostrar los datos por pantalla. Se usa para verificar
-     * que la operacion se ha realizado correctamente.
+     * Metodo interno para logear la informacion generada durante el metodo de
+     * preparacion de los datos.
+     *
+     * @param rankingData Informacion generada.
+     * @param uservisitsData Informacion generada.
+     */
+    private void debugPrepare(JavaRDD<String> rankingData, JavaRDD<String> uservisitsData) {
+        // Contamos los resultados recuperados.
+        Long rankingCountResult = rankingData.count();
+        Long uservisitsCountResult = uservisitsData.count();
+        // Mostramos el resultado del conteo por pantalla.
+        LOGGER.info("Resultado del conteo del RDD de Ranking......: " + rankingCountResult);
+        LOGGER.info("Resultado del conteo del RDD de User Visits..: " + uservisitsCountResult);
+    }
+
+    /**
+     * Metodo interno para logear la informacion generada durante el metodo de
+     * ejecucion.
      *
      * @param results Resultado obtenidos de la operacion realizada.
      */
-    private void debug(JavaSchemaRDD results) {
+    private void debugExecute(JavaSchemaRDD results) {
         // Extraemos los resultados a partir del objeto JavaSchemaRDD
         List<String> names = results.map(new Function<Row, String>() {
             @Override
@@ -223,7 +258,7 @@ public class Query03ReflectionTest extends Query03Test {
         }).collect();
         // Sacamos por pantalla los resultados de la query
         for (String name : names) {
-            System.out.println(name);
+            LOGGER.info(name);
         }
     }
 }

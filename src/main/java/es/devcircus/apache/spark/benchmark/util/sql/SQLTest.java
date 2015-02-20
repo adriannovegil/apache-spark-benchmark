@@ -26,8 +26,11 @@ import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
  */
 public abstract class SQLTest extends Test {
 
+    /**
+     * Path al directorio base donde se encuentran los datos del experimento.
+     */
     protected static String BASE_DATA_PATH = null;
-    
+
     static {
         // Directorio base de los ficheros del benchmark.
         // Lo componemos a partir del directorio base configurado en el fichero
@@ -39,8 +42,10 @@ public abstract class SQLTest extends Test {
     }
 
     /**
+     * Metodo que se encarga de la preparacion de los datos para el experimento.
      *
-     * @return
+     * @return True si la preparacion ha finalizado con exito. False en caso
+     * contrario.
      */
     public abstract Boolean prepare();
 

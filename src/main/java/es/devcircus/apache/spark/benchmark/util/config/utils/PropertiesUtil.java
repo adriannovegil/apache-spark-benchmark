@@ -146,7 +146,6 @@ public class PropertiesUtil {
      */
     public static void list(Map<String, String> map, PrintWriter printWriter) {
         Properties properties = getPropertiesfromMap(map);
-
         properties.list(printWriter);
     }
 
@@ -158,11 +157,9 @@ public class PropertiesUtil {
     public static void merge(Properties properties1, Properties properties2) {
         Enumeration<String> enu
                 = (Enumeration<String>) properties2.propertyNames();
-
         while (enu.hasMoreElements()) {
             String key = enu.nextElement();
             String value = properties2.getProperty(key);
-
             properties1.setProperty(key, value);
         }
     }

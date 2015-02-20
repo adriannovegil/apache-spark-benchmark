@@ -31,6 +31,8 @@ import org.apache.spark.sql.api.java.JavaSchemaRDD;
 import org.apache.spark.sql.api.java.Row;
 import org.apache.spark.sql.api.java.StructField;
 import org.apache.spark.sql.api.java.StructType;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 1. Scan Query
@@ -66,6 +68,9 @@ public class Query01ProgrammaticallyTest extends Query01Test {
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
     private static JavaSQLContext sqlCtx;
+
+    // Looger del test
+    private final Logger LOGGER = LoggerFactory.getLogger(Query01ProgrammaticallyTest.class);
 
     /**
      * Constructor por defecto.
@@ -116,11 +121,17 @@ public class Query01ProgrammaticallyTest extends Query01Test {
     public Boolean prepare() {
         // Cargamos los datos desde el fichero de raking.
         JavaRDD<String> rankingData = ctx.textFile(BASE_DATA_PATH + "/rankings");
+        // Si esta activo el modo de debug llamamos al metodo que logea la 
+        // informacion
         if (VERBOSE_MODE) {
-            // Contamos los resultados recuperados.
-            Long countResult = rankingData.count();
-            // Mostramos el resultado del conteo por pantalla.
-            System.out.println("Resultado del conteo del RDD...: " + countResult);
+            this.debugPrepare(rankingData);
+        }
+        // Si esta activo el TEST_MODE, ejecutamos una serie de operaciones internas
+        // que intentan determinar si los datos son correctos.
+        if (TEST_MODE) {
+            if (rankingData.count() <= 0) {
+                return false;
+            }
         }
         // Definimos la lista de atributos.
         List<StructField> fields = new ArrayList<>();
@@ -168,9 +179,16 @@ public class Query01ProgrammaticallyTest extends Query01Test {
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {
-            this.debug(results);
+            this.debugExecute(results);
         }
-        // Retornamos true indicando que el metodo ha terminado correctamente
+        // Si esta activo el TEST_MODE, ejecutamos una serie de operaciones internas
+        // que intentan determinar si los datos son correctos.
+        if (TEST_MODE) {
+            if (results.count() <= 0) {
+                return false;
+            }
+        }
+        // Todo ha salido perfectamente.
         return true;
     }
 
@@ -190,12 +208,25 @@ public class Query01ProgrammaticallyTest extends Query01Test {
     }
 
     /**
-     * Metodo interno para mostrar los datos por pantalla. Se usa para verificar
-     * que la operacion se ha realizado correctamente.
+     * Metodo interno para logear la informacion generada durante el metodo de
+     * preparacion de los datos.
+     *
+     * @param rankingData Informacion generada.
+     */
+    private void debugPrepare(JavaRDD<String> rankingData) {
+        // Contamos los resultados recuperados.
+        Long countResult = rankingData.count();
+        // Mostramos el resultado del conteo por pantalla.
+        LOGGER.info("Resultado del conteo del RDD...: " + countResult);
+    }
+
+    /**
+     * Metodo interno para logear la informacion generada durante el metodo de
+     * ejecucion.
      *
      * @param results Resultado obtenidos de la operacion realizada.
      */
-    private void debug(JavaSchemaRDD results) {
+    private void debugExecute(JavaSchemaRDD results) {
         // Extraemos los resultados a partir del objeto JavaSchemaRDD
         List<String> names = results.map(new Function<Row, String>() {
             @Override
@@ -205,7 +236,8 @@ public class Query01ProgrammaticallyTest extends Query01Test {
         }).collect();
         // Sacamos por pantalla los resultados de la query
         for (String name : names) {
-            System.out.println(name);
+            LOGGER.info(name);
         }
     }
+
 }

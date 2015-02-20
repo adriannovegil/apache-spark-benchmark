@@ -26,6 +26,7 @@ import es.devcircus.apache.spark.benchmark.util.sql.SQLTest;
  */
 public abstract class Query04Test extends SQLTest {
 
+    // Path al script python usado en el experimento.
     private static final String urlCountPythonScriptPath;
 
     // Cargamos la ruta al script python necesario para el test.

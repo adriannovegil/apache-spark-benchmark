@@ -36,12 +36,18 @@ public final class BenchmarkExecutor {
      *
      * @param test
      * @return
-     */    
+     */
     public static Boolean process(Test test) {
-        test.config();
-        test.execute();
-        test.close();
-        return true;
+        // Verificamos si falla la fase de configuracion
+        if (!test.config()) {
+            return false;
+        }
+        // Verificamos si falla la fase de ejecucion.
+        if (!test.execute()) {
+            return false;
+        }
+        // Verificamos si falla la fase de cierre.
+        return test.close();
     }
 
     /**
@@ -50,10 +56,19 @@ public final class BenchmarkExecutor {
      * @return
      */
     public static Boolean process(SQLTest test) {
-        test.config();
-        test.prepare();
-        test.execute();
-        test.close();
-        return true;
+        // Verificamos si falla la fase de configuracion
+        if (!test.config()) {
+            return false;
+        }
+        // Verificamos si falla la fase de preparacion
+        if (!test.prepare()) {
+            return false;
+        }
+        // Verificamos si falla la fase de ejecucion.
+        if (!test.execute()) {
+            return false;
+        }
+        // Verificamos si falla la fase de cierre.
+        return test.close();
     }
 }

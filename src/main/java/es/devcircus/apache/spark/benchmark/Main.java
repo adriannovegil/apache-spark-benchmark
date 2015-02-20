@@ -295,7 +295,6 @@ public class Main {
      * diferentes benchmarks ejecutados.
      */
     private static void printResults() {
-
         System.out.println();
         System.out.println("----------------------------------------------------------");
         System.out.println(" Resultado de ejecución de las pruebas SQL                ");

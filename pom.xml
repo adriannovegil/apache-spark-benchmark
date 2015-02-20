@@ -66,6 +66,11 @@
             <artifactId>spark-hive_2.10</artifactId>
             <version>1.2.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.10</version>
+        </dependency>
     </dependencies>
     
     <!-- Build Settings -->

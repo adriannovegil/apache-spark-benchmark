@@ -25,6 +25,8 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.sql.api.java.JavaSchemaRDD;
 import org.apache.spark.sql.api.java.Row;
 import org.apache.spark.sql.hive.api.java.JavaHiveContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 3. Join Query
@@ -60,6 +62,9 @@ public class Query03HiveTest extends Query03Test {
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
     private static JavaHiveContext sqlCtx;
+
+    // Looger del test
+    private final Logger LOGGER = LoggerFactory.getLogger(Query03HiveTest.class);
 
     /**
      * Constructor por defecto.
@@ -114,14 +119,24 @@ public class Query03HiveTest extends Query03Test {
         // Creamos la tabla y cargamo slos datos.
         JavaSchemaRDD rankingData = sqlCtx.hql(this.getCreateRankingsTableQuery());
         JavaSchemaRDD uservisitsData = sqlCtx.hql(this.getCreateUservisitsTableQuery());
+        
+        
+        
         if (VERBOSE_MODE) {
-            // Contamos los resultados recuperados.
-            Long rankingCountResult = rankingData.count();
-            Long uservisitsCountResult = uservisitsData.count();
-            // Mostramos el resultado del conteo por pantalla.
-            System.out.println("Resultado del conteo del RDD de Ranking......: " + rankingCountResult);
-            System.out.println("Resultado del conteo del RDD de User Visits..: " + uservisitsCountResult);
+//            // Contamos los resultados recuperados.
+//            Long rankingCountResult = rankingData.count();
+//            Long uservisitsCountResult = uservisitsData.count();
+//            // Mostramos el resultado del conteo por pantalla.
+//            System.out.println("Resultado del conteo del RDD de Ranking......: " + rankingCountResult);
+//            System.out.println("Resultado del conteo del RDD de User Visits..: " + uservisitsCountResult);
         }
+        // Si esta activo el TEST_MODE, ejecutamos una serie de operaciones internas
+        // que intentan determinar si los datos son correctos.
+        if (TEST_MODE) {
+        }
+        
+        
+        
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }
@@ -140,9 +155,16 @@ public class Query03HiveTest extends Query03Test {
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {
-            this.debug(results);
+            this.debugExecute(results);
         }
-        // Retornamos true indicando que el metodo ha terminado correctamente
+        // Si esta activo el TEST_MODE, ejecutamos una serie de operaciones internas
+        // que intentan determinar si los datos son correctos.
+        if (TEST_MODE) {
+            if (results.count() <= 0) {
+                return false;
+            }
+        }
+        // Todo ha salido perfectamente.
         return true;
     }
 
@@ -162,12 +184,12 @@ public class Query03HiveTest extends Query03Test {
     }
 
     /**
-     * Metodo interno para mostrar los datos por pantalla. Se usa para verificar
-     * que la operacion se ha realizado correctamente.
+     * Metodo interno para logear la informacion generada durante el metodo de
+     * ejecucion.
      *
      * @param results Resultado obtenidos de la operacion realizada.
      */
-    private void debug(JavaSchemaRDD results) {
+    private void debugExecute(JavaSchemaRDD results) {
         // Extraemos los resultados a partir del objeto JavaSchemaRDD
         List<String> names = results.map(new Function<Row, String>() {
             @Override
@@ -178,7 +200,7 @@ public class Query03HiveTest extends Query03Test {
         }).collect();
         // Sacamos por pantalla los resultados de la query
         for (String name : names) {
-            System.out.println(name);
+            LOGGER.info(name);
         }
     }
 }

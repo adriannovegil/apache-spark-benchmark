@@ -53,18 +53,13 @@ public final class Runner {
         }
     }
 
-    /**
-     * The test to be run
-     */
+    // El test que queremos ejecutar.
     private final SQLTest test;
-
-    /**
-     * Currently tested action
-     */
-    private String actionName;
-
+    // Tiempo que ha tardado la configuracion.
     private Long configTime;
+    // tiempo que ha tardado la preparacion del experimento.
     private Long prepareTime;
+    // Tiempo que ha tardado la ejecucion del experimento.
     private Long executeTime;
 
     /**
@@ -125,7 +120,6 @@ public final class Runner {
      * Writes result line for a specified action.
      *
      * @param result one of: "started", result number or exception string
-     * @param actionName the name of the action
      */
     private void reportResult() {
         // Fecha - Hora - Test - Tiempo configuracion \t - Tiempo carga - Tiempo ejecucion - Tiempo total
