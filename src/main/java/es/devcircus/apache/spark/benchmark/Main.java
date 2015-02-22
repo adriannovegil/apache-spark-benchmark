@@ -35,6 +35,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Main class
@@ -42,6 +44,9 @@ import java.util.Map;
  * @author Adrian Novegil Toledo <adrian.novegil@gmail.com>
  */
 public class Main {
+
+    // Looger del test
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
     /**
      * Timeout in milliseconds to wait for every run
