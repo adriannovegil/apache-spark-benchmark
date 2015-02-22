@@ -75,7 +75,7 @@ public class Query03ProgrammaticallyTest extends Query03Test {
     private static JavaSQLContext sqlCtx;
 
     // Looger del test
-    private final Logger LOGGER = LoggerFactory.getLogger(Query03ProgrammaticallyTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Query03ProgrammaticallyTest.class);
 
     /**
      * Constructor por defecto.

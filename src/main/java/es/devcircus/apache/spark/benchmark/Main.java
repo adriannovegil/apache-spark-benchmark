@@ -272,7 +272,8 @@ public class Main {
         launcher.start();
         // Wait for the launcher's and its subprocess:
         try {
-            launcher.join(timeout);
+//            launcher.join(timeout);
+            launcher.join();
         } catch (InterruptedException e) {
         }
         // Kill the sub process if still running:

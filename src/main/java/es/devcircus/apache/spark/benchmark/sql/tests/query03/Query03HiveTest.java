@@ -64,7 +64,7 @@ public class Query03HiveTest extends Query03Test {
     private static JavaHiveContext sqlCtx;
 
     // Looger del test
-    private final Logger LOGGER = LoggerFactory.getLogger(Query03HiveTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Query03HiveTest.class);
 
     /**
      * Constructor por defecto.
@@ -117,26 +117,8 @@ public class Query03HiveTest extends Query03Test {
         sqlCtx.hql(this.getDropRankingsTableQuery());
         sqlCtx.hql(this.getDropUservisitsTableQuery());
         // Creamos la tabla y cargamo slos datos.
-        JavaSchemaRDD rankingData = sqlCtx.hql(this.getCreateRankingsTableQuery());
-        JavaSchemaRDD uservisitsData = sqlCtx.hql(this.getCreateUservisitsTableQuery());
-        
-        
-        
-        if (VERBOSE_MODE) {
-//            // Contamos los resultados recuperados.
-//            Long rankingCountResult = rankingData.count();
-//            Long uservisitsCountResult = uservisitsData.count();
-//            // Mostramos el resultado del conteo por pantalla.
-//            System.out.println("Resultado del conteo del RDD de Ranking......: " + rankingCountResult);
-//            System.out.println("Resultado del conteo del RDD de User Visits..: " + uservisitsCountResult);
-        }
-        // Si esta activo el TEST_MODE, ejecutamos una serie de operaciones internas
-        // que intentan determinar si los datos son correctos.
-        if (TEST_MODE) {
-        }
-        
-        
-        
+        sqlCtx.hql(this.getCreateRankingsTableQuery());
+        sqlCtx.hql(this.getCreateUservisitsTableQuery());          
         // Retornamos true indicando que el metodo ha terminado correctamente
         return true;
     }

@@ -64,7 +64,7 @@ public class Query01HiveTest extends Query01Test {
     private static JavaHiveContext sqlCtx;
 
     // Looger del test
-    private final Logger LOGGER = LoggerFactory.getLogger(Query01HiveTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Query01HiveTest.class);
 
     /**
      * Constructor por defecto.

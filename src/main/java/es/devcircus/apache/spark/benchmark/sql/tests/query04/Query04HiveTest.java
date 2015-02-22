@@ -17,6 +17,7 @@
  */
 package es.devcircus.apache.spark.benchmark.sql.tests.query04;
 
+import es.devcircus.apache.spark.benchmark.sql.tests.query03.Query03ReflectionTest;
 import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
 import java.util.List;
 import org.apache.spark.SparkConf;
@@ -25,6 +26,8 @@ import org.apache.spark.api.java.function.Function;
 import org.apache.spark.sql.api.java.JavaSchemaRDD;
 import org.apache.spark.sql.api.java.Row;
 import org.apache.spark.sql.hive.api.java.JavaHiveContext;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 4. External Script Query
@@ -62,6 +65,10 @@ public class Query04HiveTest extends Query04Test {
     private static SparkConf sparkConf;
     private static JavaSparkContext ctx;
     private static JavaHiveContext sqlCtx;
+
+    // Looger del test
+    private static final Logger LOGGER = LoggerFactory.getLogger(Query03ReflectionTest.class);
+
 
     /**
      * Constructor por defecto.
@@ -172,7 +179,7 @@ public class Query04HiveTest extends Query04Test {
         }).collect();
         // Sacamos por pantalla los resultados de la query
         for (String name : names) {
-            System.out.println(name);
+            LOGGER.info(name);
         }
     }
 

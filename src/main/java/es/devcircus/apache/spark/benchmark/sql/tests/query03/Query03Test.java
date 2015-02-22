@@ -32,7 +32,7 @@ public abstract class Query03Test extends SQLTest {
      * rankings
      */
     protected String getDropRankingsTableQuery() {
-        // Retornamos la query compuesta.
+        // Retornamos la query compuesta.        
         return "DROP TABLE IF EXISTS rankings";
     }
 
@@ -43,7 +43,7 @@ public abstract class Query03Test extends SQLTest {
      * uservisits
      */
     protected String getDropUservisitsTableQuery() {
-        // Retornamos la query compuesta.
+        // Retornamos la query compuesta.        
         return "DROP TABLE IF EXISTS uservisits";
     }
 
@@ -58,6 +58,9 @@ public abstract class Query03Test extends SQLTest {
         return "CREATE EXTERNAL TABLE IF NOT EXISTS rankings (pageURL STRING, pageRank INT,"
                 + " avgDuration INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
                 + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/rankings'";
+//        return "CREATE TABLE IF NOT EXISTS rankings (pageURL STRING, pageRank INT,"
+//                + " avgDuration INT) ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
+//                + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/rankings'";
     }
 
     /**
@@ -73,6 +76,11 @@ public abstract class Query03Test extends SQLTest {
                 + " languageCode STRING,searchWord STRING,duration INT )"
                 + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
                 + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/uservisits'";
+//        return "CREATE TABLE IF NOT EXISTS uservisits (sourceIP STRING,destURL STRING,"
+//                + " visitDate STRING,adRevenue DOUBLE,userAgent STRING,countryCode STRING,"
+//                + " languageCode STRING,searchWord STRING,duration INT )"
+//                + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
+//                + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/uservisits'";
     }
 
     /**
@@ -82,13 +90,13 @@ public abstract class Query03Test extends SQLTest {
      * @return String que contiene la query final a ejecutar.
      */
     protected String getJoinSelectQuery(String date) {
-        // Retornamos la query compuesta.
+        // Retornamos la query compuesta.   
         return "SELECT sourceIP, sum(adRevenue) as totalRevenue, avg(pageRank) as pageRank"
                 + " FROM rankings R JOIN"
                 + " (SELECT sourceIP, destURL, adRevenue"
                 + " FROM uservisits UV"
-                + " WHERE CAST(UV.visitDate AS TIMESTAMP) > CAST('1980-01-01 00:00:00.000' AS TIMESTAMP)"
-                + " AND CAST(UV.visitDate AS TIMESTAMP) < CAST('" + date + "' AS TIMESTAMP))"
+                + " WHERE UV.visitDate > CAST('1980-01-01 00:00:00.000' AS TIMESTAMP)"
+                + " AND UV.visitDate < CAST('" + date + "' AS TIMESTAMP))"
                 + " NUV ON (R.pageURL = NUV.destURL)"
                 + " GROUP BY sourceIP"
                 + " ORDER BY totalRevenue DESC LIMIT 1";

@@ -32,7 +32,7 @@ public abstract class Query02Test extends SQLTest {
      * uservisits
      */
     protected String getDropUservisitsTableQuery() {
-        // Retornamos la query compuesta.
+        // Retornamos la query compuesta.        
         return "DROP TABLE IF EXISTS uservisits";
     }
 
@@ -49,6 +49,11 @@ public abstract class Query02Test extends SQLTest {
                 + " languageCode STRING,searchWord STRING,duration INT )"
                 + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
                 + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/uservisits'";
+//        return "CREATE TABLE IF NOT EXISTS uservisits (sourceIP STRING,destURL STRING,"
+//                + " visitDate STRING,adRevenue DOUBLE,userAgent STRING,countryCode STRING,"
+//                + " languageCode STRING,searchWord STRING,duration INT )"
+//                + " ROW FORMAT DELIMITED FIELDS TERMINATED BY ','"
+//                + " STORED AS TEXTFILE LOCATION '" + BASE_DATA_PATH + "/uservisits'";
     }
 
     /**

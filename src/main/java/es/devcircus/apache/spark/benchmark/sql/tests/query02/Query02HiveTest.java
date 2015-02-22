@@ -58,7 +58,7 @@ public class Query02HiveTest extends Query02Test {
     private static JavaHiveContext sqlCtx;
 
     // Looger del test
-    private final Logger LOGGER = LoggerFactory.getLogger(Query02HiveTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Query02HiveTest.class);
 
     /**
      * Constructor por defecto.
@@ -125,7 +125,7 @@ public class Query02HiveTest extends Query02Test {
     public Boolean execute() {
         JavaSchemaRDD results = null;
         // Lanzamos las query sobre los datos.
-        results = sqlCtx.sql(this.getTopValueSelectQuery(10));
+        results = sqlCtx.hql(this.getTopValueSelectQuery(10));
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {

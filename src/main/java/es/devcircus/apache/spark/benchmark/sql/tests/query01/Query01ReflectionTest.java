@@ -66,7 +66,7 @@ public class Query01ReflectionTest extends Query01Test {
     private static JavaSQLContext sqlCtx;
 
     // Looger del test
-    private final Logger LOGGER = LoggerFactory.getLogger(Query01ReflectionTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(Query01ReflectionTest.class);
 
     /**
      * Constructor por defecto.
