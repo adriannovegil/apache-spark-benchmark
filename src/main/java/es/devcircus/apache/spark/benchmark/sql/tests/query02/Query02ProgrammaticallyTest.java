@@ -185,7 +185,7 @@ public class Query02ProgrammaticallyTest extends Query02Test {
     public Boolean execute() {
         JavaSchemaRDD results = null;
         //  Lanzamos la query
-        results = sqlCtx.sql(this.getTopValueSelectQuery(10));
+        results = sqlCtx.sql(this.getTopValueSelectQuery(new Integer(this.getTestValue())));
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {

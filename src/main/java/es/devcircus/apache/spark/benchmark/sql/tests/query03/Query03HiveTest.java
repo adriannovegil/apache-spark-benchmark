@@ -133,7 +133,7 @@ public class Query03HiveTest extends Query03Test {
     public Boolean execute() {
         JavaSchemaRDD results = null;
         // Lanzamos las query sobre los datos.
-        results = sqlCtx.hql(this.getJoinSelectQuery("2010-01-01 00:00:00.000"));
+        results = sqlCtx.hql(this.getJoinSelectQuery(this.getTestValue() + " 00:00:00.000"));
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {

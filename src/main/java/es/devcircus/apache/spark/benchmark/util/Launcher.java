@@ -113,7 +113,8 @@ public final class Launcher extends Thread {
                     "mvn "
                     + "\"-Dexec.args="
                     + "-classpath %classpath es.devcircus.apache.spark.benchmark.util.runner.Runner "
-                    + testClass + "\" "
+                    + testClass + " " 
+                    + ((this.argList.size() > 0) ? this.argList.get(0) : "") + "\" "
                     + "-Dexec.executable=" + jvmFile.getPath()
                     + " org.codehaus.mojo:exec-maven-plugin:1.2.1:exec", null);
             

@@ -26,6 +26,27 @@ import es.devcircus.apache.spark.benchmark.util.config.ConfigurationManager;
  */
 public abstract class SQLTest extends Test {
 
+    // Variable que contiene el valor del test
+    private String testValue;
+
+    /**
+     * Metodo que nos permite recuperar el valor del atributo testValue.
+     *
+     * @return Valor actual del atributo testValue.
+     */
+    public String getTestValue() {
+        return testValue;
+    }
+
+    /**
+     * Metodo que nos permite modificar el valor del atributo testValue.
+     *
+     * @param testValue Nueva valor del atributo testValue.
+     */
+    public void setTestValue(String testValue) {
+        this.testValue = testValue;
+    }
+
     /**
      * Path al directorio base donde se encuentran los datos del experimento.
      */

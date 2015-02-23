@@ -24,7 +24,7 @@ import es.devcircus.apache.spark.benchmark.util.sql.SQLTest;
  * @author Adrian Novegil <adrian.novegil@gmail.com>
  */
 public abstract class Query01Test extends SQLTest {
-
+    
     /**
      * Query que hace el borrado de la tabla rankings.
      *

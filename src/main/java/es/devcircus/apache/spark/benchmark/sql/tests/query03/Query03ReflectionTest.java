@@ -193,7 +193,7 @@ public class Query03ReflectionTest extends Query03Test {
     public Boolean execute() {
         JavaSchemaRDD results = null;
         //  Lanzamos la query
-        results = sqlCtx.sql(this.getJoinSelectQuery("2010-01-01 00:00:00.000"));
+        results = sqlCtx.sql(this.getJoinSelectQuery(this.getTestValue() + " 00:00:00.000"));
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {

@@ -131,7 +131,7 @@ public class Query01HiveTest extends Query01Test {
     public Boolean execute() {
         JavaSchemaRDD results = null;
         // Lanzamos las query sobre los datos.
-        results = sqlCtx.hql(this.getPageRankValueSelectQuery(10));
+        results = sqlCtx.hql(this.getPageRankValueSelectQuery(new Integer(this.getTestValue())));
         // Si esta activo el modo de debug llamamos al metodo que muestra los 
         // datos.
         if (VERBOSE_MODE) {

@@ -37,8 +37,8 @@ public final class Runner {
      */
     public static void main(String[] args) throws Exception {
         // Verificamos la lista de argumentos de entrada del test.
-        if (args.length != 1) {
-            System.err.println("Usage: es.devcircus.apache.spark.benchmark.util.runner.Runner " + "<test-class>");
+        if (args.length < 1 || args.length > 2) {
+            System.err.println("Usage: es.devcircus.apache.spark.benchmark.util.runner.Runner " + "<test-class>" + "<test-value>");
             System.exit(1);
         }
         // Recuperamos el primer argumento que se corresonde con la clase del test
@@ -46,6 +46,12 @@ public final class Runner {
         String mainClass = args[0];
         // Construimos la clase del test que queremos ejecutar.       
         SQLTest test = (SQLTest) Class.forName(mainClass).newInstance();
+        if (args.length == 2) {
+            // Valor de pruebas, si procede.
+            String testValue = args[1];
+            // Seteamos el valor del test.
+            test.setTestValue(testValue);
+        }
         // Ejecutamos el test.
         try {
             new Runner(test).run();
@@ -122,26 +128,48 @@ public final class Runner {
      * @param result one of: "started", result number or exception string
      */
     private void reportResult() {
+        String TIME_STAMP_STRING = new String("[" + FormatHelper.formatTime(new Date()) + "]");
         // Fecha - Hora - Test - Tiempo configuracion \t - Tiempo carga - Tiempo ejecucion - Tiempo total
         // String builder con el que haremos la concatenacion de los datos de salida.
         StringBuilder sb = new StringBuilder(256);
-        // Anhadimos a la salida la fecha y la hora.
-        sb.append("[").append(FormatHelper.formatTime(new Date())).append("]").append(' ');
-        // Anhadimos a la salida el nombre del test.
-        sb.append(test.getName()).append(",");
+        // Anhadimos a la salida el nombre del test.        
+        sb.append(TIME_STAMP_STRING).append(" Test          : ").append(test.getName()).append("\n");
         // Anhadimos el numero de iteraciones del test
-        sb.append(" Trials: ").append(test.NUM_TRIALS).append(',').append(" ");
+        sb.append(TIME_STAMP_STRING).append(" Trials        : ").append(test.NUM_TRIALS).append('\n');
+        // Anhadimos el numero de iteraciones del test
+        sb.append(TIME_STAMP_STRING).append(" Test Value    : ").append(test.getTestValue()).append('\n');
         // Tiempo de configuracion
-        sb.append(" Times: Config = ").append(this.getSecondsFromNanoSeconds(
-                this.configTime)).append(' ');
+        sb.append(TIME_STAMP_STRING).append(" Times \n");
+        sb.append(TIME_STAMP_STRING).append("  - Config     : ").append(this.getSecondsFromNanoSeconds(
+                this.configTime)).append("\n");
         // Tiempo de preparacion del test.
-        sb.append(" Prepare = ").append(this.getSecondsFromNanoSeconds(
-                this.prepareTime)).append(' ');
+        sb.append(TIME_STAMP_STRING).append("  - Prepare    : ").append(this.getSecondsFromNanoSeconds(
+                this.prepareTime)).append("\n");
         // Tiempo de ejecucuón del test.
-        sb.append(" Execution = ").append(this.getSecondsFromNanoSeconds(
-                this.executeTime)).append(' ');
+        sb.append(TIME_STAMP_STRING).append("  - Execution  : ").append(this.getSecondsFromNanoSeconds(
+                this.executeTime));
         // Escribimos en el fichero de salida la linea de log.
         FileHelper.writeTextLine(sb.toString(), FileHelper.RESULT_FILE);
+//        // Fecha - Hora - Test - Tiempo configuracion \t - Tiempo carga - Tiempo ejecucion - Tiempo total
+//        // String builder con el que haremos la concatenacion de los datos de salida.
+//        StringBuilder sb = new StringBuilder(256);
+//        // Anhadimos a la salida la fecha y la hora.
+//        sb.append("[").append(FormatHelper.formatTime(new Date())).append("]").append(' ');
+//        // Anhadimos a la salida el nombre del test.
+//        sb.append(test.getName()).append(",").append("\t");
+//        // Anhadimos el numero de iteraciones del test
+//        sb.append(" Trials: ").append(test.NUM_TRIALS).append(',').append(" ");
+//        // Tiempo de configuracion
+//        sb.append(" Times: Config = ").append(this.getSecondsFromNanoSeconds(
+//                this.configTime)).append(' ');
+//        // Tiempo de preparacion del test.
+//        sb.append(" Prepare = ").append(this.getSecondsFromNanoSeconds(
+//                this.prepareTime)).append(' ');
+//        // Tiempo de ejecucuón del test.
+//        sb.append(" Execution = ").append(this.getSecondsFromNanoSeconds(
+//                this.executeTime)).append(' ');
+//        // Escribimos en el fichero de salida la linea de log.
+//        FileHelper.writeTextLine(sb.toString(), FileHelper.RESULT_FILE);
     }
 
     /**

@@ -89,158 +89,248 @@ public class Main {
         Boolean jvmExecution
                 = ConfigurationManager.get("apache.benchmark.config.global.independent.jvm.execution").equals("1");
         // Lista de argumentos
-        List<String> argList = new ArrayList<>();
+        List<String> argList = null;
         // Array con los jars a incluis necesarios para la ejecución
         String[] jarPaths = new String[0];
         // Bloque de ejecucion de los benchmark.
         // Ejcucion de la query 01 delegando en Hive.
         if (ConfigurationManager.get("apache.benchmark.config.sql.query.01.hive.active").equals("1")) {
-            if (jvmExecution) {
-                runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.01.hive.class"),
-                        Runner.class,
-                        argList,
-                        jarPaths);
-            } else {
-                // Creamos una instancia del test a ejecutar.
-                Query01HiveTest query01HiveTest = new Query01HiveTest();
-                // Ejecutamos y seteamos en el mapa de resultados el nombre del
-                // test y el resultado obtenido.
-                sqlBenchmarResults.put(query01HiveTest.getName(),
-                        BenchmarkExecutor.process(query01HiveTest));
+            // Recuperamos los valores posibles para el test.
+            String crudeTestValues = ConfigurationManager.get("apache.benchmark.config.sql.query.01.hive.test.values");
+            String[] crudeTestValuesParts = crudeTestValues.split(",");
+            // Ejecutamos el test para cada uno de los valores especificados.
+            for (String currentTestValue : crudeTestValuesParts) {
+                argList = new ArrayList<>();
+                argList.add(currentTestValue);
+                if (jvmExecution) {
+                    runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.01.hive.class"),
+                            Runner.class,
+                            argList,
+                            jarPaths);
+                } else {
+                    // Creamos una instancia del test a ejecutar.
+                    Query01HiveTest query01HiveTest = new Query01HiveTest();
+                    // Seteamos el valor de la prueba que queremos ejecutar.
+                    query01HiveTest.setTestValue(currentTestValue);
+                    // Ejecutamos y seteamos en el mapa de resultados el nombre del
+                    // test y el resultado obtenido.
+                    sqlBenchmarResults.put(query01HiveTest.getName(),
+                            BenchmarkExecutor.process(query01HiveTest));
+                }
             }
         }
         // Ejcucion de la query 01, la definicion del modelo se ha hecho de manera
         // programativa.
         if (ConfigurationManager.get("apache.benchmark.config.sql.query.01.programmatically.active").equals("1")) {
-            if (jvmExecution) {
-                runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.01.programmatically.class"),
-                        Runner.class,
-                        argList,
-                        jarPaths);
-            } else {
-                // Creamos una instancia del test a ejecutar.
-                Query01ProgrammaticallyTest query01ProgrammaticallyTest = new Query01ProgrammaticallyTest();
-                // Ejecutamos y seteamos en el mapa de resultados el nombre del
-                // test y el resultado obtenido.
-                sqlBenchmarResults.put(query01ProgrammaticallyTest.getName(),
-                        BenchmarkExecutor.process(query01ProgrammaticallyTest));
+            // Recuperamos los valores posibles para el test.
+            String crudeTestValues = ConfigurationManager.get("apache.benchmark.config.sql.query.01.programmatically.test.values");
+            String[] crudeTestValuesParts = crudeTestValues.split(",");
+            // Ejecutamos el test para cada uno de los valores especificados.
+            for (String currentTestValue : crudeTestValuesParts) {
+                argList = new ArrayList<>();
+                argList.add(currentTestValue);
+                if (jvmExecution) {
+                    runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.01.programmatically.class"),
+                            Runner.class,
+                            argList,
+                            jarPaths);
+                } else {
+                    // Creamos una instancia del test a ejecutar.
+                    Query01ProgrammaticallyTest query01ProgrammaticallyTest = new Query01ProgrammaticallyTest();
+                    // Seteamos el valor de la prueba que queremos ejecutar.
+                    query01ProgrammaticallyTest.setTestValue(currentTestValue);
+                    // Ejecutamos y seteamos en el mapa de resultados el nombre del
+                    // test y el resultado obtenido.
+                    sqlBenchmarResults.put(query01ProgrammaticallyTest.getName(),
+                            BenchmarkExecutor.process(query01ProgrammaticallyTest));
+                }
             }
         }
         // Ejcucion de la query 01, la definicion del modelo se ha hecho usando
         // reflexion.
         if (ConfigurationManager.get("apache.benchmark.config.sql.query.01.reflection.active").equals("1")) {
-            if (jvmExecution) {
-                runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.01.reflection.class"),
-                        Runner.class,
-                        argList,
-                        jarPaths);
-            } else {
-                // Creamos una instancia del test a ejecutar.
-                Query01ReflectionTest query01ReflectionTest1 = new Query01ReflectionTest();
-                // Ejecutamos y seteamos en el mapa de resultados el nombre del
-                // test y el resultado obtenido.
-                sqlBenchmarResults.put(query01ReflectionTest1.getName(),
-                        BenchmarkExecutor.process(query01ReflectionTest1));
+            // Recuperamos los valores posibles para el test.
+            String crudeTestValues = ConfigurationManager.get("apache.benchmark.config.sql.query.01.reflection.test.values");
+            String[] crudeTestValuesParts = crudeTestValues.split(",");
+            // Ejecutamos el test para cada uno de los valores especificados.
+            for (String currentTestValue : crudeTestValuesParts) {
+                argList = new ArrayList<>();
+                argList.add(currentTestValue);
+                if (jvmExecution) {
+                    runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.01.reflection.class"),
+                            Runner.class,
+                            argList,
+                            jarPaths);
+                } else {
+                    // Creamos una instancia del test a ejecutar.
+                    Query01ReflectionTest query01ReflectionTest1 = new Query01ReflectionTest();
+                    // Seteamos el valor de la prueba que queremos ejecutar.
+                    query01ReflectionTest1.setTestValue(currentTestValue);
+                    // Ejecutamos y seteamos en el mapa de resultados el nombre del
+                    // test y el resultado obtenido.
+                    sqlBenchmarResults.put(query01ReflectionTest1.getName(),
+                            BenchmarkExecutor.process(query01ReflectionTest1));
+                }
             }
         }
         // Ejcucion de la query 02 delegando en Hive.
         if (ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.active").equals("1")) {
-            if (jvmExecution) {
-                runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.class"),
-                        Runner.class,
-                        argList,
-                        jarPaths);
-            } else {
-                // Creamos una instancia del test a ejecutar.
-                Query02HiveTest query02HiveTest = new Query02HiveTest();
-                // Ejecutamos y seteamos en el mapa de resultados el nombre del
-                // test y el resultado obtenido.
-                sqlBenchmarResults.put(query02HiveTest.getName(),
-                        BenchmarkExecutor.process(query02HiveTest));
+            // Recuperamos los valores posibles para el test.
+            String crudeTestValues = ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.test.values");
+            String[] crudeTestValuesParts = crudeTestValues.split(",");
+            // Ejecutamos el test para cada uno de los valores especificados.
+            for (String currentTestValue : crudeTestValuesParts) {
+                argList = new ArrayList<>();
+                argList.add(currentTestValue);
+                if (jvmExecution) {
+                    runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.02.hive.class"),
+                            Runner.class,
+                            argList,
+                            jarPaths);
+                } else {
+                    // Creamos una instancia del test a ejecutar.
+                    Query02HiveTest query02HiveTest = new Query02HiveTest();
+                    // Seteamos el valor de la prueba que queremos ejecutar.
+                    query02HiveTest.setTestValue(currentTestValue);
+                    // Ejecutamos y seteamos en el mapa de resultados el nombre del
+                    // test y el resultado obtenido.
+                    sqlBenchmarResults.put(query02HiveTest.getName(),
+                            BenchmarkExecutor.process(query02HiveTest));
+                }
             }
         }
         // Ejcucion de la query 02, la definicion del modelo se ha hecho de manera
         // programativa.
         if (ConfigurationManager.get("apache.benchmark.config.sql.query.02.programmatically.active").equals("1")) {
-            if (jvmExecution) {
-                runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.02.programmatically.class"),
-                        Runner.class,
-                        argList,
-                        jarPaths);
-            } else {
-                // Creamos una instancia del test a ejecutar.
-                Query02ProgrammaticallyTest query02ProgrammaticallyTest = new Query02ProgrammaticallyTest();
-                // Ejecutamos y seteamos en el mapa de resultados el nombre del
-                // test y el resultado obtenido.
-                sqlBenchmarResults.put(query02ProgrammaticallyTest.getName(),
-                        BenchmarkExecutor.process(query02ProgrammaticallyTest));
+            // Recuperamos los valores posibles para el test.
+            String crudeTestValues = ConfigurationManager.get("apache.benchmark.config.sql.query.02.programmatically.test.values");
+            String[] crudeTestValuesParts = crudeTestValues.split(",");
+            // Ejecutamos el test para cada uno de los valores especificados.
+            for (String currentTestValue : crudeTestValuesParts) {
+                argList = new ArrayList<>();
+                argList.add(currentTestValue);
+                if (jvmExecution) {
+                    runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.02.programmatically.class"),
+                            Runner.class,
+                            argList,
+                            jarPaths);
+                } else {
+                    // Creamos una instancia del test a ejecutar.
+                    Query02ProgrammaticallyTest query02ProgrammaticallyTest = new Query02ProgrammaticallyTest();
+                    // Seteamos el valor de la prueba que queremos ejecutar.
+                    query02ProgrammaticallyTest.setTestValue(currentTestValue);
+                    // Ejecutamos y seteamos en el mapa de resultados el nombre del
+                    // test y el resultado obtenido.
+                    sqlBenchmarResults.put(query02ProgrammaticallyTest.getName(),
+                            BenchmarkExecutor.process(query02ProgrammaticallyTest));
+                }
             }
         }
         // Ejcucion de la query 02, la definicion del modelo se ha hecho usando
         // reflexion.
         if (ConfigurationManager.get("apache.benchmark.config.sql.query.02.reflection.active").equals("1")) {
-            if (jvmExecution) {
-                runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.02.reflection.class"),
-                        Runner.class,
-                        argList,
-                        jarPaths);
-            } else {
-                // Creamos una instancia del test a ejecutar.
-                Query02ReflectionTest query02ReflectionTest = new Query02ReflectionTest();
-                // Ejecutamos y seteamos en el mapa de resultados el nombre del
-                // test y el resultado obtenido.
-                sqlBenchmarResults.put(query02ReflectionTest.getName(),
-                        BenchmarkExecutor.process(query02ReflectionTest));
+            // Recuperamos los valores posibles para el test.
+            String crudeTestValues = ConfigurationManager.get("apache.benchmark.config.sql.query.02.reflection.test.values");
+            String[] crudeTestValuesParts = crudeTestValues.split(",");
+            // Ejecutamos el test para cada uno de los valores especificados.
+            for (String currentTestValue : crudeTestValuesParts) {
+                argList = new ArrayList<>();
+                argList.add(currentTestValue);
+                if (jvmExecution) {
+                    runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.02.reflection.class"),
+                            Runner.class,
+                            argList,
+                            jarPaths);
+                } else {
+                    // Creamos una instancia del test a ejecutar.
+                    Query02ReflectionTest query02ReflectionTest = new Query02ReflectionTest();
+                    // Seteamos el valor de la prueba que queremos ejecutar.
+                    query02ReflectionTest.setTestValue(currentTestValue);
+                    // Ejecutamos y seteamos en el mapa de resultados el nombre del
+                    // test y el resultado obtenido.
+                    sqlBenchmarResults.put(query02ReflectionTest.getName(),
+                            BenchmarkExecutor.process(query02ReflectionTest));
+                }
             }
         }
         // Ejcucion de la query 03 delegando en Hive.
         if (ConfigurationManager.get("apache.benchmark.config.sql.query.03.hive.active").equals("1")) {
-            if (jvmExecution) {
-                runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.03.hive.class"),
-                        Runner.class,
-                        argList,
-                        jarPaths);
-            } else {
-                // Creamos una instancia del test a ejecutar.
-                Query03HiveTest query03HiveTest = new Query03HiveTest();
-                // Ejecutamos y seteamos en el mapa de resultados el nombre del
-                // test y el resultado obtenido.
-                sqlBenchmarResults.put(query03HiveTest.getName(),
-                        BenchmarkExecutor.process(query03HiveTest));
+            // Recuperamos los valores posibles para el test.
+            String crudeTestValues = ConfigurationManager.get("apache.benchmark.config.sql.query.03.hive.test.values");
+            String[] crudeTestValuesParts = crudeTestValues.split(",");
+            // Ejecutamos el test para cada uno de los valores especificados.
+            for (String currentTestValue : crudeTestValuesParts) {
+                argList = new ArrayList<>();
+                argList.add(currentTestValue);
+                if (jvmExecution) {
+                    runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.03.hive.class"),
+                            Runner.class,
+                            argList,
+                            jarPaths);
+                } else {
+                    // Creamos una instancia del test a ejecutar.
+                    Query03HiveTest query03HiveTest = new Query03HiveTest();
+                    // Seteamos el valor de la prueba que queremos ejecutar.
+                    query03HiveTest.setTestValue(currentTestValue);
+                    // Ejecutamos y seteamos en el mapa de resultados el nombre del
+                    // test y el resultado obtenido.
+                    sqlBenchmarResults.put(query03HiveTest.getName(),
+                            BenchmarkExecutor.process(query03HiveTest));
+                }
             }
         }
         // Ejcucion de la query 03, la definicion del modelo se ha hecho de manera
         // programativa.
         if (ConfigurationManager.get("apache.benchmark.config.sql.query.03.programmatically.active").equals("1")) {
-            if (jvmExecution) {
-                runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.03.programmatically.class"),
-                        Runner.class,
-                        argList,
-                        jarPaths);
-            } else {
-                // Creamos una instancia del test a ejecutar.
-                Query03ProgrammaticallyTest query03ProgrammaticallyTest = new Query03ProgrammaticallyTest();
-                // Ejecutamos y seteamos en el mapa de resultados el nombre del
-                // test y el resultado obtenido.
-                sqlBenchmarResults.put(query03ProgrammaticallyTest.getName(),
-                        BenchmarkExecutor.process(query03ProgrammaticallyTest));
+            // Recuperamos los valores posibles para el test.
+            String crudeTestValues = ConfigurationManager.get("apache.benchmark.config.sql.query.03.programmatically.test.values");
+            String[] crudeTestValuesParts = crudeTestValues.split(",");
+            // Ejecutamos el test para cada uno de los valores especificados.
+            for (String currentTestValue : crudeTestValuesParts) {
+                argList = new ArrayList<>();
+                argList.add(currentTestValue);
+                if (jvmExecution) {
+                    runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.03.programmatically.class"),
+                            Runner.class,
+                            argList,
+                            jarPaths);
+                } else {
+                    // Creamos una instancia del test a ejecutar.
+                    Query03ProgrammaticallyTest query03ProgrammaticallyTest = new Query03ProgrammaticallyTest();
+                    // Seteamos el valor de la prueba que queremos ejecutar.
+                    query03ProgrammaticallyTest.setTestValue(currentTestValue);
+                    // Ejecutamos y seteamos en el mapa de resultados el nombre del
+                    // test y el resultado obtenido.
+                    sqlBenchmarResults.put(query03ProgrammaticallyTest.getName(),
+                            BenchmarkExecutor.process(query03ProgrammaticallyTest));
+                }
             }
         }
         // Ejcucion de la query 03, la definicion del modelo se ha hecho usando
         // reflexion.
         if (ConfigurationManager.get("apache.benchmark.config.sql.query.03.reflection.active").equals("1")) {
-            if (jvmExecution) {
-                runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.03.reflection.class"),
-                        Runner.class,
-                        argList,
-                        jarPaths);
-            } else {
-                // Creamos una instancia del test a ejecutar.
-                Query03ReflectionTest query03ReflectionTest = new Query03ReflectionTest();
-                // Ejecutamos y seteamos en el mapa de resultados el nombre del
-                // test y el resultado obtenido.
-                sqlBenchmarResults.put(query03ReflectionTest.getName(),
-                        BenchmarkExecutor.process(query03ReflectionTest));
+            // Recuperamos los valores posibles para el test.
+            String crudeTestValues = ConfigurationManager.get("apache.benchmark.config.sql.query.03.reflection.test.values");
+            String[] crudeTestValuesParts = crudeTestValues.split(",");
+            // Ejecutamos el test para cada uno de los valores especificados.
+            for (String currentTestValue : crudeTestValuesParts) {
+                argList = new ArrayList<>();
+                argList.add(currentTestValue);
+                if (jvmExecution) {
+                    runTest(ConfigurationManager.get("apache.benchmark.config.sql.query.03.reflection.class"),
+                            Runner.class,
+                            argList,
+                            jarPaths);
+                } else {
+                    // Creamos una instancia del test a ejecutar.
+                    Query03ReflectionTest query03ReflectionTest = new Query03ReflectionTest();
+                    // Seteamos el valor de la prueba que queremos ejecutar.
+                    query03ReflectionTest.setTestValue(currentTestValue);
+                    // Ejecutamos y seteamos en el mapa de resultados el nombre del
+                    // test y el resultado obtenido.
+                    sqlBenchmarResults.put(query03ReflectionTest.getName(),
+                            BenchmarkExecutor.process(query03ReflectionTest));
+                }
             }
         }
         // Ejcucion de la query 04 delegando en Hive.
@@ -258,6 +348,7 @@ public class Main {
                 sqlBenchmarResults.put(query04HiveTest.getName(),
                         BenchmarkExecutor.process(query04HiveTest));
             }
+
         }
         // Finalmente, despues de ejecutar los test, si el modo de ejecucion es
         // directo, mostramos el resultado de la ejecucion por pantalla.
