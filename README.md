@@ -1,6 +1,13 @@
 Apache Spark Benchmark
 ======================
 
+EL presente proyecto es fruto de un trabajo fin de master qué pretende ser un banco de pruebas del framework Apache Spark. La idea subyacente es la de poder ejecutar el framework en diferentes entornos tanto software como hardware para ver cuál es su comportamiento y comparar los resultados obtenidos con soluciones similares como puede ser Hive, Redshift, etc.
+
+El trabajo está basado en el benchmark de big data realizado por la universidad de Berckley (https://amplab.cs.berkeley.edu/benchmark/). En esencia, las pruebas realizadas son similares con la salvedad de que éstas se han hecho empleando el API Java de Apache Spark, y se han probado algunas configuraciones adicionales. Además, el benchmark está pensado no sólo para ser ejecutado en Amazon EC2, si no en cualquier cluster, tanto en la nube como local.
+
+Ejecución del proyecto
+----------------------
+
 Configuración del proyecto
 --------------------------
 
@@ -11,33 +18,33 @@ Propiedades de configuracion globales.
 
 Estos parámetros de configuración son comunes y afectan a todos los test desarrollados en el proyecto.
 
- * **apache.benchmark.config.global.master**: 
- * **apache.benchmark.config.global.spark.home**: 
- * **apache.benchmark.config.global.num.trials**: 
- * **apache.benchmark.config.global.verbose**: 
- * **apache.benchmark.config.global.test.mode**: 
- * **apache.benchmark.config.global.independent.jvm.execution**: 
- * **apache.benchmark.config.global.root.dir**: 
+ * **apache.benchmark.config.global.master**: Modo en el que queremos ejecutar el benchmar. Puede tomar el valor "local" si queremos hacer una ejecución local, por ejemplo, si estamos haciendo pruebas en nuestro ordenador y no queremos enviar los trabajos al cluster. O existe la configuración master, en la que lo que le proporcionamos a la librería son los datos de conexión al nodo master del cluster donde queremos ejecutar los trabajos.
+ * **apache.benchmark.config.global.spark.home**: Directorio de la instalación de Apache Spark.
+ * **apache.benchmark.config.global.num.trials**: Número de veces que queremos que se ejecute el kernel computacional de nuestro test. El programa calcula el tiempo medio entre todas las ejecuciones.
+ * **apache.benchmark.config.global.verbose**: En modo verbose el programa de ejecución de las pruebas muestra por pantalla la traza de ejecución de cada uno de los test. Este modo puede combinarse con el modo test.
+ * **apache.benchmark.config.global.test.mode**: En el modo test cada uno de los test ejecutar una serie de funciones que permiten verificar que la carga y/o ejecución de los test se ha hecho correctamente. Comentar que el nivel de verificación que se lleva a cabo es muy sencillo.
+ * **apache.benchmark.config.global.independent.jvm.execution**: Según el valor que tome esta variable se modifica el modo de ejecución de los test. Si el valor es 1, el thread main lanza cada uno de los test en una instancia independiente de la JVM. Esto se hace así para que la ejecución de un test, o el orden el que se ejecutan estos, no influyan en los resultados obtenidos. Si el valor del parámetro es 0, la ejecución que se hace es directa, es decir, la hace el thread main dentro de la misma instancia de la JVM. Este modo se ha mantenido ya que facilita el desarrollo y depuración de los test.
+ * **apache.benchmark.config.global.root.dir**: Path al directorio de trabajo del benchmark. Entre otras operaciones, en este directorio es donde se crea el fichero de resultados del benchmark.
 
 ### Propiedades de configuracion de los benchmark SQL
 
 Los parámetros definidos en esta sección afectan solamente a los test de tipo SQL.
 
- * **apache.benchmark.config.sql.global.data.base.dir**: 
- * **apache.benchmark.config.sql.global.data.compression.type**: 
- * **apache.benchmark.config.sql.global.data.size**: 
- * **apache.benchmark.config.sql.global.data.ranking.dir.name**: 
- * **apache.benchmark.config.sql.global.data.uservisits.dir.name**: 
- * **apache.benchmark.config.sql.global.data.crawl.dir.name**: 
+ * **apache.benchmark.config.sql.global.data.base.dir**: Path al directorio base donde se encuentran los fichero que contienen los datos que usaremos en los test. 
+ * **apache.benchmark.config.sql.global.data.compression.type**: Dentro del directorio base el test presupone que existe un subdirectorio. Cada uno de estos se corresponde con un formato diferente para los ficheros de datos. Por ejemplo text, text-deflate, sequence, sequence-snappy, etc.
+ * **apache.benchmark.config.sql.global.data.size**: Dentro del directorio de formato anterior, el test presupone que existe un subdirectorio en función de la dimensión del dataset. Por ejemplo, Tiny, 1node, 5node, etc.
+ * **apache.benchmark.config.sql.global.data.ranking.dir.name**: Nombre del directorio donde se encuentran la información del dataset para la tabla ranking.
+ * **apache.benchmark.config.sql.global.data.uservisits.dir.name**: Nombre del directorio donde se encuentran la información del dataset para la tabla uservisits.
+ * **apache.benchmark.config.sql.global.data.crawl.dir.name**: Nombre del directorio donde se encuentran la información del dataset para la tabla crawl.
 
 ### Propiedades comunes de los test SQL.
 
 A continuación se relaciona una muestra de los posibles parámetros de configuración que puede tener un test SQL de tipo general. La lista constituye la relación mínima de parámetros, es decir, cada caso concreto podrá contar con parámetros adicionales según se requiera.
 
- * **apache.benchmark.config.sql.query.01.programmatically.name**: 
- * **apache.benchmark.config.sql.query.01.programmatically.class**: 
- * **apache.benchmark.config.sql.query.01.programmatically.test.values**: 
- * **apache.benchmark.config.sql.query.01.programmatically.active**: 
+ * **apache.benchmark.config.sql.query.01.programmatically.name**: Nombre del test actual.
+ * **apache.benchmark.config.sql.query.01.programmatically.class**: Path a la clase que implementa el test actual.
+ * **apache.benchmark.config.sql.query.01.programmatically.test.values**: Las querys de algunos de los test que ejecutamos están parametrizadas, es decir, en cada ejecución podemos usar un valor diferente para la prueba. Este parámetro contiene la lista, separadas por comas, de los posibles valores que queremos probar. El programa ya se encarga de parsear dichos valores y ejecutar el test tantas veces como valores hallamos especificados.
+ * **apache.benchmark.config.sql.query.01.programmatically.active**: Variable que permite al usuario activa o desactivar la ejecución del test. 1 hace que el programa ejecute el test, 0 lo ignora.
 
 Listado de test disponibles.
 ----------------------------
